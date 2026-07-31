@@ -37,7 +37,7 @@ type PisoFormValues = z.infer<typeof pisoSchema>;
 
 export default function CadastroPisoPage() {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -61,7 +61,7 @@ export default function CadastroPisoPage() {
   const totalArea = (watchCaixas || 0) * (watchM2 || 0);
 
   if (authLoading) return <div className="p-8">Carregando...</div>;
-  if (user?.role !== 'admin') {
+  if (!isAdmin) {
     return (
       <div className="p-8 max-w-md mx-auto mt-12 text-center">
         <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />

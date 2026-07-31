@@ -25,7 +25,7 @@ function BaixaEstoqueContent() {
   const searchParams = useSearchParams();
   const initialPisoId = searchParams.get('piso');
   
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { toast } = useToast();
   
   const [searchTerm, setSearchTerm] = useState('');
@@ -49,7 +49,7 @@ function BaixaEstoqueContent() {
       try {
         const v = await getVendedoresAtivos();
         setVendedores(v || []);
-        if (user?.role === 'vendedor' && user?.id) {
+        if (profile?.tipo_usuario === 'vendedor' && user?.id) {
           setVendedorId(user.id);
         }
       } catch (error) {

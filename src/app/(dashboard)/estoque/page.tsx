@@ -23,8 +23,7 @@ import Image from 'next/image';
 
 export default function EstoquePage() {
   const router = useRouter();
-  const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
+  const { user, isAdmin } = useAuth();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');

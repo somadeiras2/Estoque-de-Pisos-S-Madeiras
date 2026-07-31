@@ -41,7 +41,7 @@ export default function EditPisoPage() {
   const router = useRouter();
   const params = useParams();
   const pisoId = params.id as string;
-  const { user, loading: authLoading } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -92,10 +92,10 @@ export default function EditPisoPage() {
       }
     };
     
-    if (user?.role === 'admin') {
+    if (isAdmin) {
       fetchPiso();
     }
-  }, [pisoId, reset, router, toast, user?.role]);
+  }, [pisoId, reset, router, toast, isAdmin]);
 
   const watchCaixas = watch('caixas', 0);
   const watchM2 = watch('m2PorCaixa', 0);
@@ -108,7 +108,7 @@ export default function EditPisoPage() {
     </div>
   );
 
-  if (user?.role !== 'admin') {
+  if (!isAdmin) {
     return (
       <div className="p-8 max-w-md mx-auto mt-12 text-center">
         <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
