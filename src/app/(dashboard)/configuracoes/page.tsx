@@ -103,7 +103,7 @@ export default function ConfiguracoesPage() {
                 <Input value={user?.email || ''} disabled className="bg-slate-100" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Nome Completo</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Nome</label>
                 <Input value={profile?.nome || ''} disabled className="bg-slate-100" />
               </div>
               <div>

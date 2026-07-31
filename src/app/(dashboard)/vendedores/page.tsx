@@ -43,7 +43,7 @@ export default function VendedoresPage() {
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm({
     resolver: zodResolver(vendedorSchema),
     defaultValues: {
-      nome_completo: '',
+      nome: '',
       nome_exibicao: '',
       email: '',
       telefone: ''
@@ -89,11 +89,15 @@ export default function VendedoresPage() {
 
   const onSubmit = async (data: any) => {
     try {
+      const payload = {
+        ...data,
+        nome: data.nome || data.nome_completo || 'Vendedor'
+      };
       if (editingId) {
-        await updateVendedor(editingId, data);
+        await updateVendedor(editingId, payload);
         toast({ title: 'Sucesso', description: 'Vendedor atualizado com sucesso.' });
       } else {
-        await createVendedor(data);
+        await createVendedor(payload);
         toast({ title: 'Sucesso', description: 'Vendedor criado com sucesso.' });
       }
       setIsModalOpen(false);
@@ -111,7 +115,7 @@ export default function VendedoresPage() {
   const handleEdit = (vendedor: Profile) => {
     setEditingId(vendedor.id);
     reset({
-      nome_completo: (vendedor as any).nome_completo || vendedor.nome || '',
+      nome: vendedor.nome || (vendedor as any).nome_completo || '',
       nome_exibicao: vendedor.nome_exibicao || '',
       email: vendedor.email || '',
       telefone: vendedor.telefone || '',
@@ -121,7 +125,7 @@ export default function VendedoresPage() {
 
   const openNewModal = () => {
     setEditingId(null);
-    reset({ nome_completo: '', nome_exibicao: '', email: '', telefone: '' });
+    reset({ nome: '', nome_exibicao: '', email: '', telefone: '' });
     setIsModalOpen(true);
   };
 
@@ -205,20 +209,20 @@ export default function VendedoresPage() {
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Nome Completo *</label>
-            <Input {...register('nome_completo')} error={errors.nome_completo?.message as string} />
+            <label className="block text-sm font-medium text-slate-700 mb-1">Nome *</label>
+            <Input placeholder="Ex: Marcelo" {...register('nome')} error={errors.nome?.message as string} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Nome de Exibição</label>
-            <Input {...register('nome_exibicao')} error={errors.nome_exibicao?.message as string} />
+            <label className="block text-sm font-medium text-slate-700 mb-1">Nome de Exibição / Apelido (Opcional)</label>
+            <Input placeholder="Ex: Marcelão" {...register('nome_exibicao')} error={errors.nome_exibicao?.message as string} />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Email *</label>
-            <Input type="email" {...register('email')} error={errors.email?.message as string} disabled={!!editingId} />
+            <Input type="email" placeholder="vendedor@email.com" {...register('email')} error={errors.email?.message as string} disabled={!!editingId} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Telefone</label>
-            <Input {...register('telefone')} error={errors.telefone?.message as string} />
+            <label className="block text-sm font-medium text-slate-700 mb-1">Telefone (Opcional)</label>
+            <Input placeholder="(11) 99999-9999" {...register('telefone')} error={errors.telefone?.message as string} />
           </div>
           <div className="flex justify-end gap-2 pt-4">
             <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancelar</Button>
