@@ -89,9 +89,11 @@ export default function VendedoresPage() {
 
   const onSubmit = async (data: any) => {
     try {
-      const payload = {
-        ...data,
-        nome: data.nome || data.nome_completo || 'Vendedor'
+      const payload: Record<string, any> = {
+        nome: data.nome || 'Vendedor',
+        nome_exibicao: data.nome_exibicao || null,
+        email: data.email,
+        telefone: data.telefone || null,
       };
       if (editingId) {
         await updateVendedor(editingId, payload);
@@ -115,7 +117,7 @@ export default function VendedoresPage() {
   const handleEdit = (vendedor: Profile) => {
     setEditingId(vendedor.id);
     reset({
-      nome: vendedor.nome || (vendedor as any).nome_completo || '',
+      nome: vendedor.nome || '',
       nome_exibicao: vendedor.nome_exibicao || '',
       email: vendedor.email || '',
       telefone: vendedor.telefone || '',

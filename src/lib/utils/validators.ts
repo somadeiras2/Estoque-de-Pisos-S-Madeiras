@@ -50,7 +50,6 @@ export const ajusteSchema = z.object({
 
 export const vendedorSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório'),
-  nome_completo: z.string().optional().default(''),
   nome_exibicao: z.string().optional().default(''),
   email: z.string().email('Email inválido'),
   telefone: z.string().optional().default(''),
