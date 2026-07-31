@@ -41,7 +41,7 @@ export default function LoginPage() {
     })
 
     if (error) {
-      setErrorMsg('Email ou senha incorretos.')
+      setErrorMsg(error.message || 'Email ou senha incorretos.')
       setIsLoading(false)
       return
     }
