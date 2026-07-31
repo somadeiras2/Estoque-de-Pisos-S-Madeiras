@@ -26,9 +26,44 @@ export async function getVendedorById(id: string) {
 
 export async function createVendedor(data: Partial<Profile> | any) {
   const supabase = createClient()
-  const res = await (supabase as any).from('profiles').insert(data).select().single()
-  if (res.error) throw res.error
-  return res.data
+  
+  const defaultPassword = '123456'
+  const { data: authData, error: authError } = await supabase.auth.signUp({
+    email: data.email,
+    password: defaultPassword,
+    options: {
+      data: {
+        nome: data.nome,
+        nome_exibicao: data.nome_exibicao,
+        tipo_usuario: 'vendedor'
+      }
+    }
+  })
+
+  if (authError) throw authError
+
+  const userId = authData.user?.id
+  if (!userId) {
+    throw new Error('Não foi possível criar a conta do vendedor no Supabase.')
+  }
+
+  const { data: profileData, error: profileError } = await (supabase as any)
+    .from('profiles')
+    .upsert({
+      id: userId,
+      nome: data.nome || 'Vendedor',
+      nome_exibicao: data.nome_exibicao || null,
+      email: data.email,
+      telefone: data.telefone || null,
+      tipo_usuario: 'vendedor',
+      ativo: true
+    })
+    .select()
+    .single()
+
+  if (profileError) throw profileError
+
+  return profileData
 }
 
 export async function updateVendedor(id: string, data: Partial<Profile> | any) {
