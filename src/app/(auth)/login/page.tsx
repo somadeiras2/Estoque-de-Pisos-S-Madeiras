@@ -35,19 +35,24 @@ export default function LoginPage() {
     setIsLoading(true)
     setErrorMsg('')
     
-    const { error } = await supabase.auth.signInWithPassword({
-      email: data.email,
-      password: data.password,
-    })
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      })
 
-    if (error) {
-      setErrorMsg(error.message || 'Email ou senha incorretos.')
+      if (error) {
+        setErrorMsg(error.message || 'Email ou senha incorretos.')
+        setIsLoading(false)
+        return
+      }
+
+      router.push('/')
+      router.refresh()
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Erro de conexão com o Supabase. Verifique se o projeto está ativo.')
       setIsLoading(false)
-      return
     }
-
-    router.push('/')
-    router.refresh()
   }
 
   return (
