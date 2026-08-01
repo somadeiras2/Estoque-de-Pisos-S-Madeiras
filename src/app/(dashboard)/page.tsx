@@ -178,17 +178,23 @@ export default function DashboardPage() {
 
 function StatCard({ title, value, icon: Icon, color, loading }: any) {
   return (
-    <Card className="shadow-sm transition-all duration-200">
-      <CardContent className="p-6 flex items-center space-x-4">
-        <div className={`p-3 rounded-xl bg-slate-100 ${color}`}>
-          <Icon className="w-6 h-6" />
+    <Card className="shadow-sm transition-all duration-200 overflow-hidden">
+      <CardContent className="p-4 sm:p-6 flex flex-col justify-between h-full min-h-[110px]">
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <span className="text-xs sm:text-sm font-medium text-slate-500 line-clamp-2 leading-snug">
+            {title}
+          </span>
+          <div className={`p-2 sm:p-2.5 rounded-xl bg-slate-50 border border-slate-100 ${color} shrink-0`}>
+            <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
+          </div>
         </div>
-        <div className="flex-1">
-          <p className="text-sm font-medium text-slate-500">{title}</p>
+        <div>
           {loading ? (
-            <Skeleton className="h-8 w-24 mt-1" />
+            <Skeleton className="h-7 sm:h-8 w-16 sm:w-24 mt-1" />
           ) : (
-            <h3 className="text-2xl font-bold text-slate-800">{value !== undefined ? value : '-'}</h3>
+            <h3 className="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">
+              {value !== undefined && value !== null ? value : '-'}
+            </h3>
           )}
         </div>
       </CardContent>

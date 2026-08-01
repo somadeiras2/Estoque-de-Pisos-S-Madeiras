@@ -68,6 +68,7 @@ export function Sidebar({ user }: SidebarProps) {
             <Link
               key={item.href}
               href={item.href}
+              prefetch={true}
               className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
                 isActive
                   ? 'bg-teal-50 text-teal-700 font-medium'

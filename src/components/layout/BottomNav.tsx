@@ -62,8 +62,9 @@ export function BottomNav({ user }: BottomNavProps) {
               <Link
                 key={tab.href}
                 href={tab.href}
+                prefetch={true}
                 className={`flex flex-col items-center justify-center w-16 h-full gap-1 transition-colors ${
-                  isActive ? 'text-teal-700' : 'text-slate-400 hover:text-slate-600'
+                  isActive ? 'text-teal-700 font-medium' : 'text-slate-400 hover:text-slate-600'
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -113,6 +114,7 @@ export function BottomNav({ user }: BottomNavProps) {
                   <Link
                     key={item.href}
                     href={item.href}
+                    prefetch={true}
                     className="flex items-center gap-3 p-3 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
