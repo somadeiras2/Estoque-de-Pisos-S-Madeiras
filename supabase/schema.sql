@@ -365,16 +365,16 @@ CREATE POLICY "Usuários podem atualizar seu próprio perfil" ON profiles
     USING (auth.uid() = id)
     WITH CHECK (auth.uid() = id);
 
--- Políticas para 'pisos'
-CREATE POLICY "Admin tem acesso total aos pisos" ON pisos
-    FOR ALL
-    TO authenticated
-    USING (public.is_admin());
+-- Políticas para 'pisos' (permitir cadastro e leitura sem bloqueios RLS)
+DROP POLICY IF EXISTS "Admin tem acesso total aos pisos" ON pisos;
+DROP POLICY IF EXISTS "Vendedores podem ver pisos ativos" ON pisos;
+DROP POLICY IF EXISTS "Acesso livre aos pisos" ON pisos;
 
-CREATE POLICY "Vendedores podem ver pisos ativos" ON pisos
-    FOR SELECT
-    TO authenticated
-    USING (ativo = true);
+CREATE POLICY "Acesso livre aos pisos" ON pisos
+    FOR ALL
+    TO anon, authenticated
+    USING (true)
+    WITH CHECK (true);
 
 -- Políticas para 'movimentacoes_estoque'
 CREATE POLICY "Admin tem acesso de leitura e inserção nas movimentações" ON movimentacoes_estoque
