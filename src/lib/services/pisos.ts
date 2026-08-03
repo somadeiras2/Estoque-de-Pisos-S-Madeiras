@@ -212,8 +212,27 @@ export async function updatePiso(id: string, data: Partial<Piso> | any, imageFil
 }
 
 export async function deletePiso(id: string) {
+  try {
+    const res = await fetch('/api/pisos/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    })
+    const result = await res.json()
+    if (res.ok && result.success) {
+      return result
+    }
+    if (result?.error) {
+      throw new Error(result.error)
+    }
+  } catch (err) {
+    console.warn('Fetch /api/pisos/delete falhou, tentando Supabase client direto:', err)
+  }
+
   const supabase = createClient()
-  return await (supabase as any).from('pisos').update({ ativo: false }).eq('id', id)
+  const res = await (supabase as any).from('pisos').delete().eq('id', id)
+  if (res.error) throw res.error
+  return res.data
 }
 
 export async function uploadPisoImage(file: File) {

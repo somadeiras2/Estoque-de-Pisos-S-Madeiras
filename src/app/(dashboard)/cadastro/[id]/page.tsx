@@ -154,9 +154,11 @@ export default function EditPisoPage() {
     try {
       await deletePiso(pisoId);
       toast({ title: 'Excluído', description: 'Piso excluído com sucesso.', variant: 'success' });
-      router.push('/estoque');
-    } catch (error) {
-      toast({ title: 'Erro', description: 'Não foi possível excluir o piso.', variant: 'danger' });
+      window.location.href = '/estoque';
+    } catch (error: any) {
+      const msg = error?.message || 'Não foi possível excluir o piso.';
+      alert(`Atenção ao excluir: ${msg}`);
+      toast({ title: 'Erro', description: msg, variant: 'danger' });
       console.error(error);
     } finally {
       setIsDeleting(false);
