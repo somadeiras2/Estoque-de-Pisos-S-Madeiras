@@ -77,11 +77,9 @@ export default function EstoquePage() {
     <div className="flex flex-col gap-6 min-h-screen bg-slate-50 p-4 md:p-6 lg:p-8">
       <div className="flex justify-between items-center">
         <Header title="Estoque" />
-        {isAdmin && (
-          <Button onClick={() => router.push('/cadastro')} className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white">
-            <Plus className="w-4 h-4" /> Novo Piso
-          </Button>
-        )}
+        <Button onClick={() => router.push('/cadastro')} className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white">
+          <Plus className="w-4 h-4" /> Novo Piso
+        </Button>
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 items-center">

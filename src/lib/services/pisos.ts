@@ -25,14 +25,14 @@ export async function getPisos(filters?: {
   if (filters?.marca) {
     query = query.ilike('marca', `%${filters.marca}%`)
   }
-  if (filters?.tipo) {
-    query = query.eq('tipo', filters.tipo)
-  }
   if (filters?.cor) {
     query = query.ilike('cor', `%${filters.cor}%`)
   }
   if (filters?.dimensao) {
     query = query.ilike('dimensao', `%${filters.dimensao}%`)
+  }
+  if (filters?.tipo) {
+    query = query.eq('tipo', normalizeTipo(filters.tipo))
   }
 
   if (filters?.status === 'inativo') {
@@ -76,7 +76,7 @@ function safeNumber(val: any, fallback = 0): number {
   return isNaN(parsed) ? fallback : parsed;
 }
 
-function cleanString(val?: string | null): string | null {
+function cleanString(val: any): string | null {
   if (!val || typeof val !== 'string' || !val.trim()) return null;
   return val.trim();
 }
@@ -111,9 +111,12 @@ export async function createPiso(data: Partial<Piso> | any, imageFile?: File | n
     ativo: data.ativo ?? true
   }
 
-  const res = await (supabase as any).from('pisos').insert(payload).select().single()
-  if (res.error) throw res.error
-  return res.data
+  const res = await (supabase as any).from('pisos').insert(payload).select()
+  if (res.error) {
+    console.error('Erro ao inserir piso no Supabase:', res.error)
+    throw res.error
+  }
+  return res.data?.[0] || payload
 }
 
 export async function updatePiso(id: string, data: Partial<Piso> | any, imageFile?: File | null) {

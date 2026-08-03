@@ -74,16 +74,6 @@ export default function CadastroPisoPage() {
   const totalArea = parseNum(watchCaixas) * parseNum(watchM2);
 
   if (authLoading) return <div className="p-8">Carregando...</div>;
-  if (!isAdmin) {
-    return (
-      <div className="p-8 max-w-md mx-auto mt-12 text-center">
-        <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-        <h2 className="text-xl font-bold text-slate-800 mb-2">Acesso Negado</h2>
-        <p className="text-slate-600 mb-6">Você não tem permissão para acessar esta página. Apenas administradores podem cadastrar pisos.</p>
-        <Button onClick={() => router.push('/estoque')} variant="outline">Voltar para Estoque</Button>
-      </div>
-    );
-  }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
