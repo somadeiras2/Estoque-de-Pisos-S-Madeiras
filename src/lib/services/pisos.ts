@@ -37,9 +37,7 @@ export async function getPisos(filters?: {
 
   if (filters?.status === 'inativo') {
     query = query.eq('ativo', false)
-  } else if (filters?.status === 'todos') {
-    // don't filter by ativo
-  } else {
+  } else if (filters?.status === 'ativo') {
     query = query.eq('ativo', true)
   }
 

@@ -7,10 +7,9 @@ export async function getDashboardStats(periodo?: { inicio?: string; fim?: strin
   const { count: totalModelos } = await supabase
     .from('pisos')
     .select('*', { count: 'exact', head: true })
-    .eq('ativo', true)
     
   // Total caixas & metros
-  const resPisos = await (supabase as any).from('pisos').select('quantidade_caixas, metros_por_caixa').eq('ativo', true)
+  const resPisos = await (supabase as any).from('pisos').select('quantidade_caixas, metros_por_caixa')
   const listPisos: any[] = resPisos.data || []
   
   let totalCaixas = 0
@@ -23,7 +22,6 @@ export async function getDashboardStats(periodo?: { inicio?: string; fim?: strin
   
   // Pisos estoque baixo
   const { data: pisosBaixo } = await (supabase as any).from('pisos').select('id, quantidade_caixas, estoque_minimo')
-    .eq('ativo', true)
   
   const pisosEstoqueBaixo = (pisosBaixo as any[])?.filter(p => p.quantidade_caixas <= p.estoque_minimo).length || 0
 
