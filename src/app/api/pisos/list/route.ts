@@ -58,7 +58,19 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: error.message, data: [] }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true, data: data || [], count: count || 0 })
+    const formattedData = (data || []).map((item: any) => ({
+      ...item,
+      caixas: item.quantidade_caixas ?? item.caixas ?? 0,
+      m2PorCaixa: item.metros_por_caixa ?? item.m2PorCaixa ?? 1,
+      estoqueMinimo: item.estoque_minimo ?? item.estoqueMinimo ?? 0,
+      imagemUrl: item.imagem_url || item.imagemUrl || null,
+      quantidade_caixas: item.quantidade_caixas ?? item.caixas ?? 0,
+      metros_por_caixa: item.metros_por_caixa ?? item.m2PorCaixa ?? 1,
+      estoque_minimo: item.estoque_minimo ?? item.estoqueMinimo ?? 0,
+      imagem_url: item.imagem_url || item.imagemUrl || null,
+    }))
+
+    return NextResponse.json({ success: true, data: formattedData, count: count || 0 })
   } catch (err: any) {
     console.error('API /api/pisos/list exception:', err)
     return NextResponse.json({ success: false, error: err?.message || 'Erro interno', data: [] }, { status: 500 })
