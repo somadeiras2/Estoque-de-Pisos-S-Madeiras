@@ -271,15 +271,15 @@ export default function EditPisoPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <div>
                 <label className="text-sm font-medium text-slate-700 block mb-1">Quantidade de Caixas</label>
-                <Input type="number" {...register('caixas', { valueAsNumber: true })} error={errors.caixas?.message} />
+                <Input type="number" {...register('caixas')} error={errors.caixas?.message} />
               </div>
               <div>
                 <label className="text-sm font-medium text-slate-700 block mb-1">m² por Caixa</label>
-                <Input type="number" step="0.01" {...register('m2PorCaixa', { valueAsNumber: true })} error={errors.m2PorCaixa?.message} />
+                <Input type="number" step="0.01" {...register('m2PorCaixa')} error={errors.m2PorCaixa?.message} />
               </div>
               <div>
                 <label className="text-sm font-medium text-slate-700 block mb-1">Estoque Mínimo (caixas)</label>
-                <Input type="number" {...register('estoqueMinimo', { valueAsNumber: true })} error={errors.estoqueMinimo?.message} />
+                <Input type="number" {...register('estoqueMinimo')} error={errors.estoqueMinimo?.message} />
               </div>
             </div>
 
