@@ -52,7 +52,7 @@ export default function EstoquePage() {
 
   useEffect(() => {
     const fetchPisos = async () => {
-      setLoading(true);
+      if (pisos.length === 0) setLoading(true);
       try {
         const data = await getPisos({ search: debouncedSearch, ...filters });
         setPisos(data || []);
@@ -63,9 +63,6 @@ export default function EstoquePage() {
       }
     };
     fetchPisos();
-
-    window.addEventListener('focus', fetchPisos);
-    return () => window.removeEventListener('focus', fetchPisos);
   }, [debouncedSearch, filters]);
 
   const clearFilters = () => {
@@ -174,9 +171,11 @@ export default function EstoquePage() {
                   <img 
                     src={piso.imagemUrl || piso.imagem_url} 
                     alt={piso.nome} 
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      (e.target as HTMLElement).style.display = 'none';
+                      (e.target as HTMLImageElement).src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8" stroke-width="1.5"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>';
                     }}
                   />
                 ) : (

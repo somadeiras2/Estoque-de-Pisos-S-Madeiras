@@ -95,7 +95,8 @@ export default function CadastroPisoPage() {
         throw new Error('O banco de dados não retornou a confirmação do registro.');
       }
       toast({ title: 'Sucesso', description: 'Piso cadastrado com sucesso!', variant: 'success' });
-      window.location.href = '/estoque';
+      router.push('/estoque');
+      router.refresh();
     } catch (error: any) {
       const msg = error?.message || error?.details || 'Não foi possível cadastrar o piso.';
       alert(`Atenção ao Cadastrar Piso: ${msg}`);
