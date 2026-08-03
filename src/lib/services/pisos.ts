@@ -61,6 +61,16 @@ export async function getPisoById(id: string) {
 
 export const getPiso = getPisoById
 
+function normalizeTipo(tipo?: string): string {
+  if (!tipo) return 'ceramica';
+  const norm = tipo.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+  if (norm.includes('porcelanato')) return 'porcelanato';
+  if (norm.includes('ceramica')) return 'ceramica';
+  if (norm.includes('acetinado')) return 'acetinado';
+  if (norm.includes('polido')) return 'polido';
+  return 'outros';
+}
+
 export async function createPiso(data: Partial<Piso> | any, imageFile?: File | null) {
   const supabase = createClient()
 
@@ -81,7 +91,7 @@ export async function createPiso(data: Partial<Piso> | any, imageFile?: File | n
     linha: data.linha || null,
     cor: data.cor || null,
     dimensao: data.dimensao || null,
-    tipo: data.tipo || 'ceramica',
+    tipo: normalizeTipo(data.tipo),
     quantidade_caixas: Number(data.quantidade_caixas ?? data.caixas ?? 0),
     metros_por_caixa: Number(data.metros_por_caixa ?? data.m2PorCaixa ?? 1),
     estoque_minimo: Number(data.estoque_minimo ?? data.estoqueMinimo ?? 0),
@@ -116,7 +126,7 @@ export async function updatePiso(id: string, data: Partial<Piso> | any, imageFil
     linha: data.linha || null,
     cor: data.cor || null,
     dimensao: data.dimensao || null,
-    tipo: data.tipo || 'ceramica',
+    tipo: normalizeTipo(data.tipo),
     quantidade_caixas: Number(data.quantidade_caixas ?? data.caixas ?? 0),
     metros_por_caixa: Number(data.metros_por_caixa ?? data.m2PorCaixa ?? 1),
     estoque_minimo: Number(data.estoque_minimo ?? data.estoqueMinimo ?? 0),
