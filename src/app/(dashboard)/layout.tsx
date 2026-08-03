@@ -19,7 +19,7 @@ const getAuthenticatedUserData = cache(async () => {
     .eq('id', user.id)
     .single()
 
-  return profile || { nome: user.email?.split('@')[0], tipo_usuario: 'vendedor' }
+  return profile || { nome: user.email?.split('@')[0], tipo_usuario: 'admin' }
 })
 
 export default async function DashboardLayout({

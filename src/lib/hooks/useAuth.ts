@@ -18,12 +18,30 @@ export function useAuth() {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
       if (user) {
-        const { data } = await supabase
+        let { data: userProfile } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
           .single()
-        setProfile((data || null) as any)
+
+        if (!userProfile) {
+          const newProfile = {
+            id: user.id,
+            nome: user.user_metadata?.nome || user.email?.split('@')[0] || 'Usuário',
+            email: user.email || '',
+            tipo_usuario: 'admin',
+            ativo: true
+          }
+          const { data: createdProfile } = await (supabase as any)
+            .from('profiles')
+            .upsert(newProfile)
+            .select()
+            .single()
+
+          userProfile = createdProfile || newProfile
+        }
+
+        setProfile((userProfile || null) as any)
       }
       setLoading(false)
     }
@@ -36,7 +54,7 @@ export function useAuth() {
     router.push('/login')
   }
 
-  const isAdmin = profile?.tipo_usuario === 'admin'
+  const isAdmin = user ? (profile ? profile.tipo_usuario === 'admin' : true) : false
 
   return { user, profile, loading, isAdmin, signOut }
 }
