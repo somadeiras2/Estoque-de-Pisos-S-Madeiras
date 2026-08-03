@@ -19,19 +19,19 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 const pisoSchema = z.object({
-  nome: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
-  marca: z.string().optional(),
-  codigo: z.string().optional(),
-  modelo: z.string().optional(),
-  linha: z.string().optional(),
-  cor: z.string().optional(),
-  dimensao: z.string().optional(),
-  tipo: z.string().min(1, "Tipo é obrigatório"),
-  localizacao: z.string().optional(),
-  caixas: z.number().min(0, "Quantidade não pode ser negativa"),
-  m2PorCaixa: z.number().min(0.01, "Mínimo de 0.01"),
-  estoqueMinimo: z.number().min(0, "Não pode ser negativo"),
-  observacoes: z.string().optional(),
+  nome: z.string().min(1, "Nome do piso é obrigatório"),
+  marca: z.string().optional().or(z.literal('')),
+  codigo: z.string().optional().or(z.literal('')),
+  modelo: z.string().optional().or(z.literal('')),
+  linha: z.string().optional().or(z.literal('')),
+  cor: z.string().optional().or(z.literal('')),
+  dimensao: z.string().optional().or(z.literal('')),
+  tipo: z.string().optional().or(z.literal('')),
+  localizacao: z.string().optional().or(z.literal('')),
+  caixas: z.coerce.number().min(0),
+  m2PorCaixa: z.coerce.number().min(0),
+  estoqueMinimo: z.coerce.number().min(0),
+  observacoes: z.string().optional().or(z.literal('')),
   ativo: z.boolean(),
 });
 
