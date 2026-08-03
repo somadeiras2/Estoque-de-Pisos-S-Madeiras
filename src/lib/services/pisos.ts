@@ -82,8 +82,6 @@ function cleanString(val: any): string | null {
 }
 
 export async function createPiso(data: Partial<Piso> | any, imageFile?: File | null) {
-  const supabase = createClient()
-
   let imagem_url = data.imagem_url || null
   if (imageFile) {
     try {
@@ -94,6 +92,30 @@ export async function createPiso(data: Partial<Piso> | any, imageFile?: File | n
   }
 
   const payload = {
+    ...data,
+    imagem_url
+  }
+
+  try {
+    const res = await fetch('/api/pisos/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+
+    const result = await res.json()
+    if (res.ok && result.success) {
+      return result.data
+    }
+    if (result?.error) {
+      throw new Error(result.error)
+    }
+  } catch (err: any) {
+    console.warn('Fetch para /api/pisos/create falhou, tentando envio direto via Supabase client:', err)
+  }
+
+  const supabase = createClient()
+  const dbPayload = {
     nome: String(data.nome || '').trim(),
     marca: cleanString(data.marca),
     codigo: cleanString(data.codigo),
@@ -111,18 +133,17 @@ export async function createPiso(data: Partial<Piso> | any, imageFile?: File | n
     ativo: data.ativo ?? true
   }
 
-  let res = await (supabase as any).from('pisos').insert(payload).select()
+  let res = await (supabase as any).from('pisos').insert(dbPayload).select()
   if (res.error) {
     if (res.error.code === '23505' || (res.error.message && res.error.message.includes('pisos_codigo_key'))) {
-      payload.codigo = `${payload.codigo || 'PISO'}-${Math.floor(1000 + Math.random() * 9000)}`;
-      res = await (supabase as any).from('pisos').insert(payload).select()
+      dbPayload.codigo = `${dbPayload.codigo || 'PISO'}-${Math.floor(1000 + Math.random() * 9000)}`;
+      res = await (supabase as any).from('pisos').insert(dbPayload).select()
     }
     if (res.error) {
-      console.error('Erro ao inserir piso no Supabase:', res.error)
       throw new Error(res.error.message || 'Erro ao cadastrar piso no banco de dados.')
     }
   }
-  return res.data?.[0] || payload
+  return res.data?.[0] || dbPayload
 }
 
 export async function updatePiso(id: string, data: Partial<Piso> | any, imageFile?: File | null) {
