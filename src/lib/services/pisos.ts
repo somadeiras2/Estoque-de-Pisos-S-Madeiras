@@ -86,7 +86,7 @@ export async function createPiso(data: Partial<Piso> | any, imageFile?: File | n
     try {
       imagem_url = await uploadPisoImage(imageFile)
     } catch (e) {
-      console.error('Erro ao fazer upload da imagem:', e)
+      console.warn('Erro ao fazer upload da imagem no Storage, salvando piso sem foto por enquanto:', e)
     }
   }
 
