@@ -150,8 +150,15 @@ export default function EstoquePage() {
           {pisos.map(piso => (
             <Card key={piso.id} className="overflow-hidden hover:shadow-md transition-shadow">
               <div className="h-48 bg-slate-100 relative flex items-center justify-center border-b border-slate-200">
-                {piso.imagemUrl ? (
-                  <Image src={piso.imagemUrl} alt={piso.nome} fill className="object-cover" />
+                {(piso.imagemUrl || piso.imagem_url) ? (
+                  <img 
+                    src={piso.imagemUrl || piso.imagem_url} 
+                    alt={piso.nome} 
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = 'none';
+                    }}
+                  />
                 ) : (
                   <Layers className="w-12 h-12 text-slate-300" />
                 )}
@@ -206,7 +213,18 @@ export default function EstoquePage() {
                 <tr key={piso.id} className="border-t border-slate-200 hover:bg-slate-50">
                   <td className="px-6 py-3">
                     <div className="w-10 h-10 bg-slate-100 rounded overflow-hidden flex items-center justify-center">
-                      {piso.imagemUrl ? <Image src={piso.imagemUrl} width={40} height={40} alt="" /> : <Layers className="w-5 h-5 text-slate-300" />}
+                      {(piso.imagemUrl || piso.imagem_url) ? (
+                        <img 
+                          src={piso.imagemUrl || piso.imagem_url} 
+                          alt={piso.nome} 
+                          className="w-10 h-10 object-cover rounded" 
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <Layers className="w-5 h-5 text-slate-300" />
+                      )}
                     </div>
                   </td>
                   <td className="px-6 py-3 font-medium">{piso.nome}</td>
