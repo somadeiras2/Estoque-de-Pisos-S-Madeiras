@@ -16,6 +16,8 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { createPiso } from '@/lib/services/pisos';
 import { formatArea } from '@/lib/utils/formatters';
 
+const numberSchema = z.coerce.number().min(0);
+
 const pisoSchema = z.object({
   nome: z.string().min(1, "Nome do piso é obrigatório"),
   marca: z.string().optional().or(z.literal('')),
@@ -26,9 +28,9 @@ const pisoSchema = z.object({
   dimensao: z.string().optional().or(z.literal('')),
   tipo: z.string().optional().or(z.literal('')),
   localizacao: z.string().optional().or(z.literal('')),
-  caixas: z.coerce.number().min(0),
-  m2PorCaixa: z.coerce.number().min(0),
-  estoqueMinimo: z.coerce.number().min(0),
+  caixas: numberSchema,
+  m2PorCaixa: numberSchema,
+  estoqueMinimo: numberSchema,
   observacoes: z.string().optional().or(z.literal('')),
   ativo: z.boolean(),
 });
@@ -61,7 +63,15 @@ export default function CadastroPisoPage() {
 
   const watchCaixas = watch('caixas', 0);
   const watchM2 = watch('m2PorCaixa', 0);
-  const totalArea = (watchCaixas || 0) * (watchM2 || 0);
+  
+  const parseNum = (val: any) => {
+    if (typeof val === 'number') return isNaN(val) ? 0 : val;
+    if (!val) return 0;
+    const n = parseFloat(String(val).replace(',', '.'));
+    return isNaN(n) ? 0 : n;
+  };
+  
+  const totalArea = parseNum(watchCaixas) * parseNum(watchM2);
 
   if (authLoading) return <div className="p-8">Carregando...</div>;
   if (!isAdmin) {
@@ -103,11 +113,21 @@ export default function CadastroPisoPage() {
     }
   };
 
+  const onFormError = (formErrors: any) => {
+    console.error('Erros de validação:', formErrors);
+    const firstError = Object.values(formErrors)[0] as any;
+    toast({
+      title: 'Atenção',
+      description: firstError?.message || 'Por favor, preencha o Nome do Piso.',
+      variant: 'danger'
+    });
+  };
+
   return (
     <div className="flex flex-col gap-6 min-h-screen bg-slate-50 p-4 md:p-6 lg:p-8 pb-24">
       <Header title="Cadastro de Pisos" />
       
-      <form onSubmit={handleSubmit(onSubmit)} className="max-w-4xl mx-auto w-full space-y-6">
+      <form onSubmit={handleSubmit(onSubmit, onFormError)} className="max-w-4xl mx-auto w-full space-y-6">
         <Card>
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold text-slate-800 mb-4">Imagem do Produto</h3>

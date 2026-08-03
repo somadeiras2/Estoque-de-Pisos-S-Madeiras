@@ -18,6 +18,8 @@ import { formatArea } from '@/lib/utils/formatters';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
+const numberSchema = z.coerce.number().min(0);
+
 const pisoSchema = z.object({
   nome: z.string().min(1, "Nome do piso é obrigatório"),
   marca: z.string().optional().or(z.literal('')),
@@ -28,9 +30,9 @@ const pisoSchema = z.object({
   dimensao: z.string().optional().or(z.literal('')),
   tipo: z.string().optional().or(z.literal('')),
   localizacao: z.string().optional().or(z.literal('')),
-  caixas: z.coerce.number().min(0),
-  m2PorCaixa: z.coerce.number().min(0),
-  estoqueMinimo: z.coerce.number().min(0),
+  caixas: numberSchema,
+  m2PorCaixa: numberSchema,
+  estoqueMinimo: numberSchema,
   observacoes: z.string().optional().or(z.literal('')),
   ativo: z.boolean(),
 });

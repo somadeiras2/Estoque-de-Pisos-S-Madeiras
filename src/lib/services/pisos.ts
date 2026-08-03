@@ -71,6 +71,13 @@ function normalizeTipo(tipo?: string): string {
   return 'outros';
 }
 
+function safeNumber(val: any, fallback = 0): number {
+  if (val === null || val === undefined || val === '') return fallback;
+  if (typeof val === 'number') return isNaN(val) ? fallback : val;
+  const parsed = parseFloat(String(val).replace(',', '.'));
+  return isNaN(parsed) ? fallback : parsed;
+}
+
 export async function createPiso(data: Partial<Piso> | any, imageFile?: File | null) {
   const supabase = createClient()
 
@@ -92,9 +99,9 @@ export async function createPiso(data: Partial<Piso> | any, imageFile?: File | n
     cor: data.cor || null,
     dimensao: data.dimensao || null,
     tipo: normalizeTipo(data.tipo),
-    quantidade_caixas: Number(data.quantidade_caixas ?? data.caixas ?? 0),
-    metros_por_caixa: Number(data.metros_por_caixa ?? data.m2PorCaixa ?? 1),
-    estoque_minimo: Number(data.estoque_minimo ?? data.estoqueMinimo ?? 0),
+    quantidade_caixas: safeNumber(data.quantidade_caixas ?? data.caixas, 0),
+    metros_por_caixa: safeNumber(data.metros_por_caixa ?? data.m2PorCaixa, 1),
+    estoque_minimo: safeNumber(data.estoque_minimo ?? data.estoqueMinimo, 0),
     localizacao: data.localizacao || null,
     observacoes: data.observacoes || null,
     imagem_url: imagem_url,
@@ -127,9 +134,9 @@ export async function updatePiso(id: string, data: Partial<Piso> | any, imageFil
     cor: data.cor || null,
     dimensao: data.dimensao || null,
     tipo: normalizeTipo(data.tipo),
-    quantidade_caixas: Number(data.quantidade_caixas ?? data.caixas ?? 0),
-    metros_por_caixa: Number(data.metros_por_caixa ?? data.m2PorCaixa ?? 1),
-    estoque_minimo: Number(data.estoque_minimo ?? data.estoqueMinimo ?? 0),
+    quantidade_caixas: safeNumber(data.quantidade_caixas ?? data.caixas, 0),
+    metros_por_caixa: safeNumber(data.metros_por_caixa ?? data.m2PorCaixa, 1),
+    estoque_minimo: safeNumber(data.estoque_minimo ?? data.estoqueMinimo, 0),
     localizacao: data.localizacao || null,
     observacoes: data.observacoes || null,
     ativo: data.ativo ?? true
