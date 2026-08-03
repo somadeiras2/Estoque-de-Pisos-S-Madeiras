@@ -58,6 +58,9 @@ export default function EstoquePage() {
       }
     };
     fetchPisos();
+
+    window.addEventListener('focus', fetchPisos);
+    return () => window.removeEventListener('focus', fetchPisos);
   }, [debouncedSearch, filters]);
 
   const clearFilters = () => {

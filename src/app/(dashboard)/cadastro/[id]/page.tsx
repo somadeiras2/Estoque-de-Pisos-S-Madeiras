@@ -140,6 +140,7 @@ export default function EditPisoPage() {
     try {
       await updatePiso(pisoId, data, imageFile);
       toast({ title: 'Sucesso', description: 'Piso atualizado com sucesso!', variant: 'success' });
+      router.refresh();
       router.push('/estoque');
     } catch (error: any) {
       toast({ title: 'Erro', description: error?.message || 'Não foi possível atualizar o piso.', variant: 'danger' });

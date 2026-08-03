@@ -104,6 +104,7 @@ export default function CadastroPisoPage() {
     try {
       await createPiso(data, imageFile);
       toast({ title: 'Sucesso', description: 'Piso cadastrado com sucesso!', variant: 'success' });
+      router.refresh();
       router.push('/estoque');
     } catch (error: any) {
       toast({ title: 'Erro', description: error?.message || 'Não foi possível cadastrar o piso.', variant: 'danger' });
