@@ -12,6 +12,28 @@ export async function getPisos(filters?: {
   limit?: number
   id?: string
 }) {
+  // Try server-side API route first (bypasses RLS issues)
+  try {
+    const params = new URLSearchParams()
+    if (filters?.search) params.set('search', filters.search)
+    if (filters?.marca) params.set('marca', filters.marca)
+    if (filters?.tipo) params.set('tipo', filters.tipo)
+    if (filters?.cor) params.set('cor', filters.cor)
+    if (filters?.dimensao) params.set('dimensao', filters.dimensao)
+    if (filters?.status) params.set('status', filters.status)
+    if (filters?.id) params.set('id', filters.id)
+
+    const url = `/api/pisos/list?${params.toString()}`
+    const res = await fetch(url)
+    const result = await res.json()
+    if (res.ok && result.success && Array.isArray(result.data)) {
+      return result.data as any[]
+    }
+  } catch (err) {
+    console.warn('Fetch /api/pisos/list falhou, tentando Supabase client direto:', err)
+  }
+
+  // Fallback: direct Supabase browser client
   const supabase = createClient()
   let query = (supabase as any).from('pisos').select('*', { count: 'exact' })
 
@@ -34,17 +56,10 @@ export async function getPisos(filters?: {
   if (filters?.tipo) {
     query = query.eq('tipo', normalizeTipo(filters.tipo))
   }
-
   if (filters?.status === 'inativo') {
     query = query.eq('ativo', false)
   } else if (filters?.status === 'ativo') {
     query = query.eq('ativo', true)
-  }
-
-  if (filters?.page !== undefined && filters?.limit !== undefined) {
-    const from = (filters.page - 1) * filters.limit
-    const to = from + filters.limit - 1
-    query = query.range(from, to)
   }
 
   const res = await query.order('created_at', { ascending: false })
@@ -52,6 +67,18 @@ export async function getPisos(filters?: {
 }
 
 export async function getPisoById(id: string) {
+  // Try server-side API route first
+  try {
+    const res = await fetch(`/api/pisos/list?id=${id}`)
+    const result = await res.json()
+    if (res.ok && result.success && Array.isArray(result.data) && result.data.length > 0) {
+      return result.data[0] as any
+    }
+  } catch (err) {
+    console.warn('Fetch /api/pisos/list?id falhou, tentando Supabase client direto:', err)
+  }
+
+  // Fallback
   const supabase = createClient()
   const res = await (supabase as any).from('pisos').select('*').eq('id', id).single()
   return res.data as any
