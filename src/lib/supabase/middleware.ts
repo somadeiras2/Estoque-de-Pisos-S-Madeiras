@@ -6,9 +6,14 @@ export async function updateSession(request: NextRequest) {
     request,
   })
 
+  // Skip auth check for API routes - they handle their own auth
+  if (request.nextUrl.pathname.startsWith('/api/')) {
+    return supabaseResponse
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://wlnpsaudwbpnvuyirpnl.supabase.co',
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable__1u9ZdTA1xOvdh7i2zCtBw_Fvo1ZgYV',
     {
       cookies: {
         getAll() {
