@@ -72,10 +72,13 @@ export async function getDashboardStats(periodo?: { inicio?: string; fim?: strin
   return {
     totalModelos: totalModelos || 0,
     totalCaixas,
+    totalArea: totalMetros,
     totalMetros,
+    estoqueBaixo: pisosEstoqueBaixo,
     pisosEstoqueBaixo,
     baixasHoje: baixasHoje || 0,
-    pisoMaisVendido: maisVendido,
+    maisVendido: maisVendido ? maisVendido.nome : null,
+    pisoMaisVendido: maisVendido ? maisVendido.nome : null,
     ultimasMovimentacoes: ultimasMovimentacoes || [],
   }
 }
