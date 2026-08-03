@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import { Layers, Plus, Filter, LayoutList, LayoutGrid as GridIcon, Search, X } from 'lucide-react';
+import { Layers, Plus, Filter, LayoutList, LayoutGrid as GridIcon, Search, X, Trash2 } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -12,10 +12,12 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Pagination } from '@/components/ui/Pagination';
 import { SearchInput } from '@/components/ui/SearchInput';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useDebounce } from '@/lib/hooks/useDebounce';
 import { useMediaQuery } from '@/lib/hooks/useMediaQuery';
-import { getPisos } from '@/lib/services/pisos';
+import { getPisos, deletePiso } from '@/lib/services/pisos';
 import { getStockStatus } from '@/lib/utils/calculations';
 import { formatArea } from '@/lib/utils/formatters';
 import { useRouter } from 'next/navigation';
@@ -24,6 +26,7 @@ import Image from 'next/image';
 export default function EstoquePage() {
   const router = useRouter();
   const { user, isAdmin } = useAuth();
+  const { toast } = useToast();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -32,6 +35,8 @@ export default function EstoquePage() {
   const [pisos, setPisos] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearch = useDebounce(searchTerm, 500);
+  const [pisoToDelete, setPisoToDelete] = useState<any | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   const [filters, setFilters] = useState({
     marca: '',
@@ -71,6 +76,21 @@ export default function EstoquePage() {
   const StatusBadge = ({ caixas, minimo }: { caixas: number, minimo: number }) => {
     const status = getStockStatus(caixas, minimo);
     return <StockBadge status={status} />;
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!pisoToDelete) return;
+    setIsDeleting(true);
+    try {
+      await deletePiso(pisoToDelete.id);
+      toast({ title: 'Excluído', description: `Piso ${pisoToDelete.nome} excluído com sucesso.`, variant: 'success' });
+      setPisos(prev => prev.filter(p => p.id !== pisoToDelete.id));
+    } catch (error: any) {
+      toast({ title: 'Erro', description: error?.message || 'Erro ao excluir piso.', variant: 'danger' });
+    } finally {
+      setIsDeleting(false);
+      setPisoToDelete(null);
+    }
   };
 
   return (
@@ -185,8 +205,11 @@ export default function EstoquePage() {
                   <Button className="flex-1 bg-teal-600 hover:bg-teal-700 text-white" onClick={() => router.push(`/baixa?piso=${piso.id}`)}>
                     Dar Baixa
                   </Button>
-                  <Button variant="outline" className="flex-1" onClick={() => router.push(isAdmin ? `/cadastro/${piso.id}` : `/estoque/${piso.id}`)}>
+                  <Button variant="outline" className="px-3" onClick={() => router.push(isAdmin ? `/cadastro/${piso.id}` : `/estoque/${piso.id}`)}>
                     Detalhes
+                  </Button>
+                  <Button variant="danger" className="px-2" title="Excluir Piso" onClick={() => setPisoToDelete(piso)}>
+                    <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
               </CardContent>
@@ -237,6 +260,7 @@ export default function EstoquePage() {
                     <div className="flex justify-end gap-2">
                       <Button variant="outline" size="sm" onClick={() => router.push(isAdmin ? `/cadastro/${piso.id}` : `/estoque/${piso.id}`)}>Ver</Button>
                       <Button size="sm" className="bg-teal-600 hover:bg-teal-700 text-white" onClick={() => router.push(`/baixa?piso=${piso.id}`)}>Baixa</Button>
+                      <Button variant="danger" size="sm" onClick={() => setPisoToDelete(piso)} title="Excluir"><Trash2 className="w-4 h-4" /></Button>
                     </div>
                   </td>
                 </tr>
@@ -247,6 +271,18 @@ export default function EstoquePage() {
       )}
 
       {!loading && pisos.length > 0 && <Pagination className="mt-4" />}
+
+      <ConfirmDialog
+        isOpen={!!pisoToDelete}
+        onClose={() => setPisoToDelete(null)}
+        onConfirm={handleConfirmDelete}
+        title="Excluir Piso"
+        description={`Tem certeza que deseja excluir o piso "${pisoToDelete?.nome}"? Esta ação removerá o piso do estoque.`}
+        confirmText="Sim, Excluir"
+        cancelText="Cancelar"
+        variant="danger"
+        loading={isDeleting}
+      />
     </div>
   );
 }
