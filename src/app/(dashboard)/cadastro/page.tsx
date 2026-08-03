@@ -102,13 +102,18 @@ export default function CadastroPisoPage() {
   const onSubmit = async (data: PisoFormValues) => {
     setIsSubmitting(true);
     try {
-      await createPiso(data, imageFile);
+      const result = await createPiso(data, imageFile);
+      if (!result) {
+        throw new Error('O banco de dados não retornou a confirmação do registro.');
+      }
       toast({ title: 'Sucesso', description: 'Piso cadastrado com sucesso!', variant: 'success' });
       router.refresh();
       router.push('/estoque');
     } catch (error: any) {
-      toast({ title: 'Erro', description: error?.message || 'Não foi possível cadastrar o piso.', variant: 'danger' });
-      console.error(error);
+      const msg = error?.message || error?.details || 'Não foi possível cadastrar o piso.';
+      alert(`Atenção ao Cadastrar Piso: ${msg}`);
+      toast({ title: 'Erro', description: msg, variant: 'danger' });
+      console.error('Erro no cadastro:', error);
     } finally {
       setIsSubmitting(false);
     }

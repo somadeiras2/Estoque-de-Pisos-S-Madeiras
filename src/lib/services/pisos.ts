@@ -78,6 +78,11 @@ function safeNumber(val: any, fallback = 0): number {
   return isNaN(parsed) ? fallback : parsed;
 }
 
+function cleanString(val?: string | null): string | null {
+  if (!val || typeof val !== 'string' || !val.trim()) return null;
+  return val.trim();
+}
+
 export async function createPiso(data: Partial<Piso> | any, imageFile?: File | null) {
   const supabase = createClient()
 
@@ -91,19 +96,19 @@ export async function createPiso(data: Partial<Piso> | any, imageFile?: File | n
   }
 
   const payload = {
-    nome: data.nome,
-    marca: data.marca || null,
-    codigo: data.codigo || null,
-    modelo: data.modelo || null,
-    linha: data.linha || null,
-    cor: data.cor || null,
-    dimensao: data.dimensao || null,
+    nome: String(data.nome || '').trim(),
+    marca: cleanString(data.marca),
+    codigo: cleanString(data.codigo),
+    modelo: cleanString(data.modelo),
+    linha: cleanString(data.linha),
+    cor: cleanString(data.cor),
+    dimensao: cleanString(data.dimensao),
     tipo: normalizeTipo(data.tipo),
     quantidade_caixas: safeNumber(data.quantidade_caixas ?? data.caixas, 0),
     metros_por_caixa: safeNumber(data.metros_por_caixa ?? data.m2PorCaixa, 1),
     estoque_minimo: safeNumber(data.estoque_minimo ?? data.estoqueMinimo, 0),
-    localizacao: data.localizacao || null,
-    observacoes: data.observacoes || null,
+    localizacao: cleanString(data.localizacao),
+    observacoes: cleanString(data.observacoes),
     imagem_url: imagem_url,
     ativo: data.ativo ?? true
   }
@@ -126,19 +131,19 @@ export async function updatePiso(id: string, data: Partial<Piso> | any, imageFil
   }
 
   const payload: Record<string, any> = {
-    nome: data.nome,
-    marca: data.marca || null,
-    codigo: data.codigo || null,
-    modelo: data.modelo || null,
-    linha: data.linha || null,
-    cor: data.cor || null,
-    dimensao: data.dimensao || null,
+    nome: String(data.nome || '').trim(),
+    marca: cleanString(data.marca),
+    codigo: cleanString(data.codigo),
+    modelo: cleanString(data.modelo),
+    linha: cleanString(data.linha),
+    cor: cleanString(data.cor),
+    dimensao: cleanString(data.dimensao),
     tipo: normalizeTipo(data.tipo),
     quantidade_caixas: safeNumber(data.quantidade_caixas ?? data.caixas, 0),
     metros_por_caixa: safeNumber(data.metros_por_caixa ?? data.m2PorCaixa, 1),
     estoque_minimo: safeNumber(data.estoque_minimo ?? data.estoqueMinimo, 0),
-    localizacao: data.localizacao || null,
-    observacoes: data.observacoes || null,
+    localizacao: cleanString(data.localizacao),
+    observacoes: cleanString(data.observacoes),
     ativo: data.ativo ?? true
   }
 
