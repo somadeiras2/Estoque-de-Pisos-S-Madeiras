@@ -18,8 +18,9 @@ export async function getPisos(filters?: {
   if (filters?.id) {
     query = query.eq('id', filters.id)
   }
-  if (filters?.search) {
-    query = query.ilike('nome', `%${filters.search}%`)
+  if (filters?.search && filters.search.trim() !== '') {
+    const s = filters.search.trim()
+    query = query.or(`nome.ilike.%${s}%,marca.ilike.%${s}%,codigo.ilike.%${s}%,cor.ilike.%${s}%,modelo.ilike.%${s}%`)
   }
   if (filters?.marca) {
     query = query.ilike('marca', `%${filters.marca}%`)
@@ -60,14 +61,77 @@ export async function getPisoById(id: string) {
 
 export const getPiso = getPisoById
 
-export async function createPiso(data: Partial<Piso> | any) {
+export async function createPiso(data: Partial<Piso> | any, imageFile?: File | null) {
   const supabase = createClient()
-  return await (supabase as any).from('pisos').insert(data).select().single()
+
+  let imagem_url = data.imagem_url || null
+  if (imageFile) {
+    try {
+      imagem_url = await uploadPisoImage(imageFile)
+    } catch (e) {
+      console.error('Erro ao fazer upload da imagem:', e)
+    }
+  }
+
+  const payload = {
+    nome: data.nome,
+    marca: data.marca || null,
+    codigo: data.codigo || null,
+    modelo: data.modelo || null,
+    linha: data.linha || null,
+    cor: data.cor || null,
+    dimensao: data.dimensao || null,
+    tipo: data.tipo || 'ceramica',
+    quantidade_caixas: Number(data.quantidade_caixas ?? data.caixas ?? 0),
+    metros_por_caixa: Number(data.metros_por_caixa ?? data.m2PorCaixa ?? 1),
+    estoque_minimo: Number(data.estoque_minimo ?? data.estoqueMinimo ?? 0),
+    localizacao: data.localizacao || null,
+    observacoes: data.observacoes || null,
+    imagem_url: imagem_url,
+    ativo: data.ativo ?? true
+  }
+
+  const res = await (supabase as any).from('pisos').insert(payload).select().single()
+  if (res.error) throw res.error
+  return res.data
 }
 
-export async function updatePiso(id: string, data: Partial<Piso> | any) {
+export async function updatePiso(id: string, data: Partial<Piso> | any, imageFile?: File | null) {
   const supabase = createClient()
-  return await (supabase as any).from('pisos').update(data).eq('id', id).select().single()
+
+  let imagem_url = data.imagem_url
+  if (imageFile) {
+    try {
+      imagem_url = await uploadPisoImage(imageFile)
+    } catch (e) {
+      console.error('Erro ao fazer upload da imagem:', e)
+    }
+  }
+
+  const payload: Record<string, any> = {
+    nome: data.nome,
+    marca: data.marca || null,
+    codigo: data.codigo || null,
+    modelo: data.modelo || null,
+    linha: data.linha || null,
+    cor: data.cor || null,
+    dimensao: data.dimensao || null,
+    tipo: data.tipo || 'ceramica',
+    quantidade_caixas: Number(data.quantidade_caixas ?? data.caixas ?? 0),
+    metros_por_caixa: Number(data.metros_por_caixa ?? data.m2PorCaixa ?? 1),
+    estoque_minimo: Number(data.estoque_minimo ?? data.estoqueMinimo ?? 0),
+    localizacao: data.localizacao || null,
+    observacoes: data.observacoes || null,
+    ativo: data.ativo ?? true
+  }
+
+  if (imagem_url !== undefined) {
+    payload.imagem_url = imagem_url
+  }
+
+  const res = await (supabase as any).from('pisos').update(payload).eq('id', id).select().single()
+  if (res.error) throw res.error
+  return res.data
 }
 
 export async function deletePiso(id: string) {

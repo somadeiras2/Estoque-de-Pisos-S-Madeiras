@@ -89,12 +89,11 @@ export default function CadastroPisoPage() {
   const onSubmit = async (data: PisoFormValues) => {
     setIsSubmitting(true);
     try {
-      // Create logic mapping image upload via service
-      await createPiso({ ...data, imagem: imageFile });
+      await createPiso(data, imageFile);
       toast({ title: 'Sucesso', description: 'Piso cadastrado com sucesso!', variant: 'success' });
       router.push('/estoque');
-    } catch (error) {
-      toast({ title: 'Erro', description: 'Não foi possível cadastrar o piso.', variant: 'danger' });
+    } catch (error: any) {
+      toast({ title: 'Erro', description: error?.message || 'Não foi possível cadastrar o piso.', variant: 'danger' });
       console.error(error);
     } finally {
       setIsSubmitting(false);

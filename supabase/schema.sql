@@ -107,7 +107,19 @@ CREATE TRIGGER trg_pisos_updated_at
 BEFORE UPDATE ON pisos
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
--- Função e Trigger para criar perfil automaticamente no cadastro (auth.users)
+-- Função e Trigger para auto-confirmar e-mail e criar perfil automaticamente no cadastro (auth.users)
+CREATE OR REPLACE FUNCTION public.auto_confirm_user()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.email_confirmed_at = COALESCE(NEW.email_confirmed_at, NOW());
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER trg_auto_confirm_user
+BEFORE INSERT ON auth.users
+FOR EACH ROW EXECUTE FUNCTION public.auto_confirm_user();
+
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
