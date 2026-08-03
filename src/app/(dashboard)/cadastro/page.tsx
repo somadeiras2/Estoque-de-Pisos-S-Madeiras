@@ -97,8 +97,7 @@ export default function CadastroPisoPage() {
         throw new Error('O banco de dados não retornou a confirmação do registro.');
       }
       toast({ title: 'Sucesso', description: 'Piso cadastrado com sucesso!', variant: 'success' });
-      router.refresh();
-      router.push('/estoque');
+      window.location.href = '/estoque';
     } catch (error: any) {
       const msg = error?.message || error?.details || 'Não foi possível cadastrar o piso.';
       alert(`Atenção ao Cadastrar Piso: ${msg}`);
@@ -112,9 +111,11 @@ export default function CadastroPisoPage() {
   const onFormError = (formErrors: any) => {
     console.error('Erros de validação:', formErrors);
     const firstError = Object.values(formErrors)[0] as any;
+    const msg = firstError?.message || 'Por favor, preencha os campos obrigatórios.';
+    alert(`Atenção: Verifique os campos do formulário - ${msg}`);
     toast({
       title: 'Atenção',
-      description: firstError?.message || 'Por favor, preencha o Nome do Piso.',
+      description: msg,
       variant: 'danger'
     });
   };
