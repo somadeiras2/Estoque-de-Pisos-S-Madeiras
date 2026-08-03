@@ -16,10 +16,8 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { createPiso } from '@/lib/services/pisos';
 import { formatArea } from '@/lib/utils/formatters';
 
-const numberSchema = z.coerce.number().min(0);
-
 const pisoSchema = z.object({
-  nome: z.string().min(1, "Nome do piso é obrigatório"),
+  nome: z.string().min(1, "O Nome do Piso é obrigatório."),
   marca: z.string().optional().or(z.literal('')),
   codigo: z.string().optional().or(z.literal('')),
   modelo: z.string().optional().or(z.literal('')),
@@ -28,11 +26,11 @@ const pisoSchema = z.object({
   dimensao: z.string().optional().or(z.literal('')),
   tipo: z.string().optional().or(z.literal('')),
   localizacao: z.string().optional().or(z.literal('')),
-  caixas: numberSchema,
-  m2PorCaixa: numberSchema,
-  estoqueMinimo: numberSchema,
+  caixas: z.any().optional(),
+  m2PorCaixa: z.any().optional(),
+  estoqueMinimo: z.any().optional(),
   observacoes: z.string().optional().or(z.literal('')),
-  ativo: z.boolean(),
+  ativo: z.boolean().optional(),
 });
 
 type PisoFormValues = z.infer<typeof pisoSchema>;
@@ -225,15 +223,15 @@ export default function CadastroPisoPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <div>
                 <label className="text-sm font-medium text-slate-700 block mb-1">Quantidade de Caixas</label>
-                <Input type="number" {...register('caixas')} error={errors.caixas?.message} />
+                <Input type="number" {...register('caixas')} error={errors.caixas?.message as string | undefined} />
               </div>
               <div>
                 <label className="text-sm font-medium text-slate-700 block mb-1">m² por Caixa</label>
-                <Input type="number" step="0.01" {...register('m2PorCaixa')} error={errors.m2PorCaixa?.message} />
+                <Input type="number" step="0.01" {...register('m2PorCaixa')} error={errors.m2PorCaixa?.message as string | undefined} />
               </div>
               <div>
                 <label className="text-sm font-medium text-slate-700 block mb-1">Estoque Mínimo (caixas)</label>
-                <Input type="number" {...register('estoqueMinimo')} error={errors.estoqueMinimo?.message} />
+                <Input type="number" {...register('estoqueMinimo')} error={errors.estoqueMinimo?.message as string | undefined} />
               </div>
             </div>
 

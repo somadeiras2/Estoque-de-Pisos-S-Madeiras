@@ -111,10 +111,16 @@ export async function createPiso(data: Partial<Piso> | any, imageFile?: File | n
     ativo: data.ativo ?? true
   }
 
-  const res = await (supabase as any).from('pisos').insert(payload).select()
+  let res = await (supabase as any).from('pisos').insert(payload).select()
   if (res.error) {
-    console.error('Erro ao inserir piso no Supabase:', res.error)
-    throw res.error
+    if (res.error.code === '23505' || (res.error.message && res.error.message.includes('pisos_codigo_key'))) {
+      payload.codigo = `${payload.codigo || 'PISO'}-${Math.floor(1000 + Math.random() * 9000)}`;
+      res = await (supabase as any).from('pisos').insert(payload).select()
+    }
+    if (res.error) {
+      console.error('Erro ao inserir piso no Supabase:', res.error)
+      throw new Error(res.error.message || 'Erro ao cadastrar piso no banco de dados.')
+    }
   }
   return res.data?.[0] || payload
 }
