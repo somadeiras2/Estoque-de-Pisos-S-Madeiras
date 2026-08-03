@@ -47,7 +47,7 @@ export async function GET(request: Request) {
 
     if (status === 'inativo') {
       query = query.eq('ativo', false)
-    } else if (status === 'ativo') {
+    } else {
       query = query.eq('ativo', true)
     }
 
