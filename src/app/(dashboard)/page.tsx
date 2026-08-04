@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Header } from '@/components/layout/Header';
 import { formatNumber, formatArea, formatDate } from '@/lib/utils/formatters';
-import { getDashboardStats, getSalesChart, getTopPisos, getRecentMovements } from '@/lib/services/dashboard';
+import { fetchDashboardAll } from '@/lib/services/dashboard';
 
 export default function DashboardPage() {
   const [period, setPeriod] = useState('7d');
@@ -18,14 +18,10 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
+      if (!data) setLoading(true);
       try {
-        const stats = await getDashboardStats(period);
-        const salesChart = await getSalesChart(period);
-        const topPisos = await getTopPisos(period);
-        const recentMovements = await getRecentMovements();
-        
-        setData({ stats, salesChart, topPisos, recentMovements });
+        const dashboardData = await fetchDashboardAll();
+        setData(dashboardData);
       } catch (error) {
         console.error('Erro ao carregar dados do dashboard:', error);
       } finally {
