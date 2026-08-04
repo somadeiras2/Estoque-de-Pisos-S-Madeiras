@@ -18,10 +18,10 @@ export async function realizarBaixa(params: {
   const res = await (supabase as any).rpc('realizar_baixa_estoque', {
     p_piso_id: params.piso_id || params.pisoId,
     p_quantidade: params.quantidade_caixas || params.quantidade || 0,
-    p_vendedor_id: params.vendedor_id || params.vendedorId,
+    p_vendedor_id: params.vendedor_id || params.vendedorId || null,
     p_numero_pedido: params.numero_pedido || params.pedido || '',
     p_observacao: params.observacao || '',
-    p_usuario_id: params.usuario_responsavel_id || params.usuarioId || '',
+    p_usuario_id: params.usuario_responsavel_id || params.usuarioId || null,
   })
 
   if (res.error) throw res.error
@@ -45,7 +45,7 @@ export async function realizarEntrada(params: {
     p_quantidade: params.quantidade_caixas || params.quantidade || 0,
     p_numero_referencia: params.numero_referencia || params.referencia || '',
     p_observacao: params.observacao || '',
-    p_usuario_id: params.usuario_responsavel_id || params.usuarioId || '',
+    p_usuario_id: params.usuario_responsavel_id || params.usuarioId || null,
   })
 
   if (res.error) throw res.error
@@ -69,7 +69,7 @@ export async function realizarAjuste(params: {
     p_quantidade_nova: params.quantidade_nova ?? params.quantidade_caixas ?? params.quantidade ?? 0,
     p_motivo: params.motivo,
     p_observacao: params.observacao || '',
-    p_usuario_id: params.usuario_responsavel_id || params.usuarioId || '',
+    p_usuario_id: params.usuario_responsavel_id || params.usuarioId || null,
   })
 
   if (res.error) throw res.error
