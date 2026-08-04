@@ -9,6 +9,7 @@ import {
   ArrowDownCircle,
   TrendingUp,
   Menu,
+  RotateCcw,
   History,
   Users,
   Settings,
@@ -33,6 +34,7 @@ const mainTabs = [
 ]
 
 const menuItems = [
+  { name: 'Devolução de Piso', href: '/devolucao', icon: RotateCcw },
   { name: 'Histórico', href: '/historico', icon: History },
   { name: 'Vendedores', href: '/vendedores', icon: Users },
   { name: 'Configurações', href: '/configuracoes', icon: Settings },

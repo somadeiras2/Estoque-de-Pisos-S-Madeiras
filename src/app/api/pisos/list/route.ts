@@ -70,7 +70,14 @@ export async function GET(request: Request) {
       imagem_url: item.imagem_url || item.imagemUrl || null,
     }))
 
-    return NextResponse.json({ success: true, data: formattedData, count: count || 0 })
+    return NextResponse.json(
+      { success: true, data: formattedData, count: count || 0 },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=5, stale-while-revalidate=29'
+        }
+      }
+    )
   } catch (err: any) {
     console.error('API /api/pisos/list exception:', err)
     return NextResponse.json({ success: false, error: err?.message || 'Erro interno', data: [] }, { status: 500 })

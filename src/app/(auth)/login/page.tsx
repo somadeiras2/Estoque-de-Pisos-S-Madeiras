@@ -56,7 +56,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="bg-white py-8 px-4 shadow-xl shadow-slate-200/50 sm:rounded-2xl sm:px-10 border border-slate-100">
+    <div className="bg-white py-8 px-4 shadow-xl shadow-slate-200/50 sm:rounded-2xl sm:px-10 border border-slate-100 max-w-md mx-auto">
       <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center mb-8">
         <div className="bg-teal-700 text-white p-3 rounded-xl mb-4 shadow-md">
           <Package className="w-8 h-8" />
@@ -131,11 +131,25 @@ export default function LoginPage() {
           )}
         </div>
 
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <input
+              id="remember_me"
+              type="checkbox"
+              defaultChecked={true}
+              className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-slate-300 rounded cursor-pointer"
+            />
+            <label htmlFor="remember_me" className="ml-2 block text-sm text-slate-700 cursor-pointer">
+              Manter conectado
+            </label>
+          </div>
+        </div>
+
         <div>
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-teal-700 hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-teal-700 hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors disabled:opacity-70 disabled:cursor-not-allowed font-semibold"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
