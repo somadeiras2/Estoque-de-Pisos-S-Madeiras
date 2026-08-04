@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#0F766E',
+  themeColor: '#F8FAFC',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -30,11 +30,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt-BR" className="h-full antialiased">
+    <html lang="pt-BR" className="h-full antialiased bg-slate-50">
       <head>
         <link rel="apple-touch-icon" href="/icon-192.png" />
+        <meta name="theme-color" content="#F8FAFC" />
       </head>
-      <body className={`${inter.className} h-full select-none font-sans bg-slate-50 text-slate-800`}>
+      <body className={`${inter.className} h-full select-none font-sans bg-slate-50 text-slate-800 overscroll-none`}>
         <ToastProvider>
           {children}
         </ToastProvider>

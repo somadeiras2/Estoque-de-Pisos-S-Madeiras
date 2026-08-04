@@ -14,10 +14,12 @@
   --color-primary-900: #134e4a;
 }
 
-body {
+html, body {
   background: #f8fafc;
+  background-color: #f8fafc;
   font-family: var(--font-sans);
   -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
 }
 
 /* Custom scrollbar for better appearance */
