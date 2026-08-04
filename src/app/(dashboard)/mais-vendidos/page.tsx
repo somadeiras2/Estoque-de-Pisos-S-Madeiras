@@ -1,176 +1,281 @@
-'use client';
+'use client'
 
-import React, { useState, useEffect } from 'react';
-import Header from '@/components/layout/Header';
-import { Card } from '@/components/ui/Card';
-import { Skeleton } from '@/components/ui/Skeleton';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { Select } from '@/components/ui/Select';
-import { useToast } from '@/components/ui/Toast';
-import { Trophy, TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { getMaisVendidos } from '@/lib/services/dashboard';
-import { formatNumber, formatArea } from '@/lib/utils/formatters';
-import { useIsMobile } from '@/lib/hooks/useMediaQuery';
+import React, { useState, useEffect } from 'react'
+import { Header } from '@/components/layout/Header'
+import { Card, CardContent } from '@/components/ui/Card'
+import { Skeleton } from '@/components/ui/Skeleton'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { Button } from '@/components/ui/Button'
+import { Trophy, Printer, Users, Boxes, TrendingUp, BarChart2, Lightbulb, Package, Layers } from 'lucide-react'
+import { formatNumber, formatArea } from '@/lib/utils/formatters'
+import { useIsMobile } from '@/lib/hooks/useMediaQuery'
 
-const PERIOD_OPTIONS = [
-  { label: 'Hoje', value: 'hoje' },
-  { label: 'Últimos 7 dias', value: '7dias' },
-  { label: 'Últimos 30 dias', value: '30dias' },
-  { label: 'Últimos 90 dias', value: '90dias' },
-  { label: 'Este Ano', value: 'ano' },
-];
+type SortMode = 'volume' | 'pedidos' | 'media'
 
 export default function MaisVendidosPage() {
-  const [periodo, setPeriodo] = useState('30dias');
-  const [data, setData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
-  const isMobile = useIsMobile();
+  const [data, setData] = useState<any[]>([])
+  const [summary, setSummary] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [sortMode, setSortMode] = useState<SortMode>('volume')
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     const loadData = async () => {
-      setLoading(true);
+      setLoading(true)
       try {
-        const result = await getMaisVendidos(periodo);
-        setData(result || []);
-      } catch (error) {
-        toast({ title: 'Erro', description: 'Não foi possível carregar os dados.', variant: 'danger' });
+        const res = await fetch('/api/reports/strategic')
+        const json = await res.json()
+        if (res.ok && json.success) {
+          setData(json.data || [])
+          setSummary(json.summary || null)
+        }
+      } catch (err) {
+        console.error(err)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-    loadData();
-  }, [periodo, toast]);
-
-  const getPositionStyle = (index: number) => {
-    switch(index) {
-      case 0: return 'bg-amber-100 text-amber-600 border-amber-200';
-      case 1: return 'bg-slate-200 text-slate-600 border-slate-300';
-      case 2: return 'bg-amber-700/20 text-amber-800 border-amber-800/30';
-      default: return 'bg-slate-100 text-slate-500 border-slate-200';
     }
-  };
+    loadData()
+  }, [])
+
+  // Sort data based on strategic metric
+  const sortedData = [...data].sort((a, b) => {
+    if (sortMode === 'pedidos') {
+      if (b.pedidosCount !== a.pedidosCount) return b.pedidosCount - a.pedidosCount
+      return b.totalCaixas - a.totalCaixas
+    }
+    if (sortMode === 'media') {
+      if (b.mediaCaixasPorPedido !== a.mediaCaixasPorPedido) return b.mediaCaixasPorPedido - a.mediaCaixasPorPedido
+      return b.totalCaixas - a.totalCaixas
+    }
+    // Default: volume (totalCaixas)
+    return b.totalCaixas - a.totalCaixas
+  })
+
+  // Insights computation
+  const liderVolume = data.length > 0 ? [...data].sort((a, b) => b.totalCaixas - a.totalCaixas)[0] : null
+  const maisPopular = data.length > 0 ? [...data].sort((a, b) => b.pedidosCount - a.pedidosCount)[0] : null
+  const maiorMedia = data.length > 0 ? [...data].sort((a, b) => b.mediaCaixasPorPedido - a.mediaCaixasPorPedido)[0] : null
+
+  const handlePrint = () => {
+    window.print()
+  }
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 pb-10">
-      <Header 
-        title="Mais Vendidos" 
-        actions={
-          <div className="w-40">
-            <Select 
-              value={periodo} 
-              onChange={(e) => setPeriodo(e.target.value)}
-              options={PERIOD_OPTIONS}
-            />
-          </div>
-        }
-      />
+    <div className="flex flex-col min-h-screen bg-slate-50 p-4 md:p-6 lg:p-8 pb-24 print:bg-white print:p-0 print:pb-0">
+      
+      {/* Header hidden on print */}
+      <div className="print:hidden">
+        <Header 
+          title="Relatório Estratégico de Vendas" 
+          subtitle="Análise de volume, frequência de clientes e recorrência de pedidos"
+          actions={
+            <Button 
+              onClick={handlePrint}
+              className="bg-teal-700 hover:bg-teal-800 text-white flex items-center gap-2 shadow-sm"
+            >
+              <Printer className="w-4 h-4" /> Imprimir Relatório
+            </Button>
+          }
+        />
+      </div>
 
-      <main className="flex-1 p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
-        {loading ? (
-          <div className="space-y-4">
-            <Skeleton className="h-[300px] w-full rounded-xl" />
-            <Skeleton className="h-20 w-full rounded-xl" />
-            <Skeleton className="h-20 w-full rounded-xl" />
+      {/* Official Printable Document Header (Only visible on print) */}
+      <div className="hidden print:block mb-6 text-center border-b border-slate-300 pb-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <Package className="w-6 h-6 text-teal-700" />
+            <h1 className="text-xl font-bold text-slate-900">ESTOQUE PISOS SÓ MADEIRAS</h1>
           </div>
-        ) : data.length === 0 ? (
-          <EmptyState 
-            icon={Trophy}
-            title="Nenhuma venda registrada"
-            description="Não houve movimentações de saída no período selecionado."
-          />
-        ) : (
-          <>
-            <Card className="p-4 md:p-6">
-              <h3 className="font-semibold text-slate-800 mb-4">Top 10 Produtos (Caixas)</h3>
-              <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={data.slice(0, 10)} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                    <XAxis type="number" hide />
-                    <YAxis dataKey="nome" type="category" width={isMobile ? 80 : 150} tick={{fontSize: 12}} />
-                    <Tooltip 
-                      formatter={(value) => [`${value} caixas`, 'Vendas']}
-                      contentStyle={{ borderRadius: '8px' }}
-                    />
-                    <Bar dataKey="total_caixas" radius={[0, 4, 4, 0]}>
-                      {data.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={index < 3 ? '#0F766E' : '#94A3B8'} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+          <span className="text-xs text-slate-500">
+            Gerado em: {new Date().toLocaleDateString('pt-BR')} às {new Date().toLocaleTimeString('pt-BR')}
+          </span>
+        </div>
+        <h2 className="text-lg font-semibold text-slate-700 uppercase tracking-wide">
+          RELATÓRIO ESTRATÉGICO DE DESEMPENHO E RECORRÊNCIA DE VENDAS
+        </h2>
+      </div>
+
+      <main className="space-y-6 max-w-7xl mx-auto w-full">
+
+        {/* Strategic Cards - Volume vs Popularity */}
+        {!loading && data.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 print:grid-cols-3">
+            
+            {/* Lider Volume */}
+            <Card className="border-l-4 border-l-teal-600 bg-white shadow-sm">
+              <CardContent className="p-4 flex items-center gap-4">
+                <div className="p-3 bg-teal-50 rounded-xl text-teal-700 shrink-0">
+                  <Boxes className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase">Maior Volume (Caixas)</p>
+                  <h3 className="font-bold text-slate-800 text-base truncate">{liderVolume?.nome || '-'}</h3>
+                  <p className="text-sm text-teal-700 font-semibold">{formatNumber(liderVolume?.totalCaixas || 0)} caixas ({formatArea(liderVolume?.totalArea || 0)})</p>
+                  <p className="text-xs text-slate-400">Vendido em {liderVolume?.pedidosCount} pedido(s)</p>
+                </div>
+              </CardContent>
             </Card>
 
-            <div className="space-y-3">
-              <h3 className="font-semibold text-slate-800 px-1">Ranking Detalhado</h3>
-              
-              {isMobile ? (
-                <div className="flex flex-col gap-3">
-                  {data.map((item, index) => (
-                    <Card key={item.id} className="p-4 flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold border ${getPositionStyle(index)}`}>
-                        {index + 1}º
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-slate-800 truncate">{item.nome}</p>
-                        <p className="text-xs text-slate-500">Cód: {item.codigo}</p>
-                        <div className="flex items-center gap-3 mt-1 text-sm">
-                          <span className="font-medium text-teal-700">{formatNumber(item.total_caixas)} cx</span>
-                          <span className="text-slate-500">{formatArea(item.total_area)} m²</span>
-                        </div>
-                      </div>
-                      <div className="text-xs text-slate-400 flex flex-col items-end">
-                        <span>{item.pedidos_count}</span>
-                        <span>pedidos</span>
-                      </div>
-                    </Card>
-                  ))}
+            {/* Mais Popular */}
+            <Card className="border-l-4 border-l-amber-500 bg-white shadow-sm">
+              <CardContent className="p-4 flex items-center gap-4">
+                <div className="p-3 bg-amber-50 rounded-xl text-amber-600 shrink-0">
+                  <Users className="w-6 h-6" />
                 </div>
-              ) : (
-                <Card className="overflow-hidden">
-                  <table className="w-full text-sm text-left">
-                    <thead className="bg-slate-50 text-slate-500 border-b border-slate-200">
-                      <tr>
-                        <th className="px-6 py-3 font-medium">Posição</th>
-                        <th className="px-6 py-3 font-medium">Produto</th>
-                        <th className="px-6 py-3 font-medium text-right">Caixas Vendidas</th>
-                        <th className="px-6 py-3 font-medium text-right">Área Total (m²)</th>
-                        <th className="px-6 py-3 font-medium text-right">Nº de Pedidos</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {data.map((item, index) => (
-                        <tr key={item.id} className="hover:bg-slate-50 transition-colors">
-                          <td className="px-6 py-4">
-                            <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full font-bold text-xs border ${getPositionStyle(index)}`}>
-                              {index + 1}º
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <p className="font-medium text-slate-800">{item.nome}</p>
-                            <p className="text-xs text-slate-500">Cód: {item.codigo}</p>
-                          </td>
-                          <td className="px-6 py-4 text-right font-medium text-teal-700">
-                            {formatNumber(item.total_caixas)} cx
-                          </td>
-                          <td className="px-6 py-4 text-right text-slate-600">
-                            {formatArea(item.total_area)} m²
-                          </td>
-                          <td className="px-6 py-4 text-right text-slate-600">
-                            {item.pedidos_count}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </Card>
-              )}
-            </div>
-          </>
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase">Mais Popular (Mais Clientes)</p>
+                  <h3 className="font-bold text-slate-800 text-base truncate">{maisPopular?.nome || '-'}</h3>
+                  <p className="text-sm text-amber-600 font-semibold">Vendido para {maisPopular?.pedidosCount} pedido(s) distintos!</p>
+                  <p className="text-xs text-slate-400">Total de {formatNumber(maisPopular?.totalCaixas || 0)} caixas</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Maior Média */}
+            <Card className="border-l-4 border-l-indigo-500 bg-white shadow-sm">
+              <CardContent className="p-4 flex items-center gap-4">
+                <div className="p-3 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                  <TrendingUp className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase">Maior Média por Pedido</p>
+                  <h3 className="font-bold text-slate-800 text-base truncate">{maiorMedia?.nome || '-'}</h3>
+                  <p className="text-sm text-indigo-600 font-semibold">~{maiorMedia?.mediaCaixasPorPedido} cx / pedido</p>
+                  <p className="text-xs text-slate-400">{maiorMedia?.pedidosCount} pedido(s) no total</p>
+                </div>
+              </CardContent>
+            </Card>
+
+          </div>
+        )}
+
+        {/* Filter Controls (Hidden on print) */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm print:hidden">
+          <div className="flex items-center gap-2 text-slate-700 text-sm font-semibold">
+            <Lightbulb className="w-5 h-5 text-amber-500" />
+            <span>Ordenar relatório por:</span>
+          </div>
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+            <button
+              onClick={() => setSortMode('volume')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                sortMode === 'volume' 
+                  ? 'bg-teal-700 text-white shadow' 
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              📦 Volume (Caixas)
+            </button>
+            <button
+              onClick={() => setSortMode('pedidos')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                sortMode === 'pedidos' 
+                  ? 'bg-amber-600 text-white shadow' 
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              👥 Frequência (Nº de Pedidos/Clientes)
+            </button>
+            <button
+              onClick={() => setSortMode('media')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                sortMode === 'media' 
+                  ? 'bg-indigo-600 text-white shadow' 
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              📊 Média (Caixas/Pedido)
+            </button>
+          </div>
+        </div>
+
+        {/* Table & List */}
+        {loading ? (
+          <div className="space-y-3">
+            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-16 w-full rounded-xl" />)}
+          </div>
+        ) : sortedData.length === 0 ? (
+          <EmptyState
+            icon={Trophy}
+            title="Nenhuma saída registrada"
+            description="Não foram encontradas baixas registradas para compor o relatório."
+          />
+        ) : (
+          <Card className="overflow-hidden border border-slate-200 shadow-sm print:border-none print:shadow-none">
+            <table className="w-full text-sm text-left border-collapse">
+              <thead className="bg-slate-100 text-slate-700 border-b border-slate-200 print:bg-slate-200">
+                <tr>
+                  <th className="px-4 py-3 font-bold text-center w-12">#</th>
+                  <th className="px-4 py-3 font-bold">Piso / Marca</th>
+                  <th className="px-4 py-3 font-bold text-right">Volume (Caixas)</th>
+                  <th className="px-4 py-3 font-bold text-right">Área Total</th>
+                  <th className="px-4 py-3 font-bold text-center">Nº Pedidos / Clientes</th>
+                  <th className="px-4 py-3 font-bold text-right">Média p/ Pedido</th>
+                  <th className="px-4 py-3 font-bold text-center print:table-cell">Diagnóstico Estratégico</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 print:divide-slate-300">
+                {sortedData.map((item, index) => {
+                  const isMultiCliente = item.pedidosCount > 1
+                  const isHighVolume = item.totalCaixas >= 40
+
+                  return (
+                    <tr key={item.id} className="hover:bg-slate-50/80 transition-colors print:hover:bg-white">
+                      <td className="px-4 py-3 text-center font-bold text-slate-500">
+                        {index + 1}º
+                      </td>
+                      <td className="px-4 py-3">
+                        <p className="font-semibold text-slate-800">{item.nome}</p>
+                        <p className="text-xs text-slate-500">{item.marca} • Dim: {item.dimensao || 'N/A'} • Cód: {item.codigo || 'N/A'}</p>
+                      </td>
+                      <td className="px-4 py-3 text-right font-bold text-teal-700">
+                        {formatNumber(item.totalCaixas)} cx
+                      </td>
+                      <td className="px-4 py-3 text-right text-slate-600 font-medium">
+                        {formatArea(item.totalArea)}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                          isMultiCliente 
+                            ? 'bg-amber-100 text-amber-800 border border-amber-200' 
+                            : 'bg-slate-100 text-slate-600'
+                        }`}>
+                          {item.pedidosCount} pedido(s)
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right font-semibold text-indigo-700">
+                        ~{item.mediaCaixasPorPedido} cx/ped
+                      </td>
+                      <td className="px-4 py-3 text-center text-xs">
+                        {isMultiCliente && isHighVolume ? (
+                          <span className="text-teal-800 bg-teal-50 px-2 py-0.5 rounded border border-teal-200 font-semibold">
+                            🔥 Alta Demanda & Recorrência
+                          </span>
+                        ) : isMultiCliente ? (
+                          <span className="text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 font-semibold">
+                            ⭐ Popular ({item.pedidosCount} clientes)
+                          </span>
+                        ) : (
+                          <span className="text-slate-600 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+                            📦 Venda Pontual (1 cliente)
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </Card>
         )}
       </main>
+
+      {/* Printable Footer */}
+      <div className="hidden print:block mt-8 text-xs text-slate-500 text-center border-t border-slate-300 pt-3">
+        <p>Relatório Interno Estratégico de Desempenho de Vendas - Estoque Pisos Só Madeiras</p>
+      </div>
+
     </div>
-  );
+  )
 }
