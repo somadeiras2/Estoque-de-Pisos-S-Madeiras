@@ -12,6 +12,7 @@ import {
   RotateCcw,
   History,
   Users,
+  Trophy,
   Settings,
   LogOut,
   X
@@ -33,18 +34,21 @@ const mainTabs = [
   { name: 'Top', href: '/mais-vendidos', icon: TrendingUp },
 ]
 
-const menuItems = [
-  { name: 'Devolução de Piso', href: '/devolucao', icon: RotateCcw },
-  { name: 'Histórico', href: '/historico', icon: History },
-  { name: 'Vendedores', href: '/vendedores', icon: Users },
-  { name: 'Configurações', href: '/configuracoes', icon: Settings },
-]
-
 export function BottomNav({ user }: BottomNavProps) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  const isAdmin = user?.tipo_usuario === 'admin'
+
+  const menuItems = [
+    ...(isAdmin ? [{ name: 'Ranking Vendedores', href: '/ranking', icon: Trophy }] : []),
+    { name: 'Devolução de Piso', href: '/devolucao', icon: RotateCcw },
+    { name: 'Histórico', href: '/historico', icon: History },
+    { name: 'Vendedores', href: '/vendedores', icon: Users },
+    { name: 'Configurações', href: '/configuracoes', icon: Settings },
+  ]
 
   const handleLogout = async () => {
     await supabase.auth.signOut()

@@ -13,6 +13,7 @@ import {
   History,
   Settings,
   Package,
+  Trophy,
   LogOut
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -33,6 +34,7 @@ const navItems = [
   { name: 'Cadastro', href: '/cadastro', icon: PlusCircle },
   { name: 'Vendedores', href: '/vendedores', icon: Users },
   { name: 'Mais Vendidos', href: '/mais-vendidos', icon: TrendingUp },
+  { name: 'Ranking Vendedores', href: '/ranking', icon: Trophy, adminOnly: true },
   { name: 'Histórico', href: '/historico', icon: History },
   { name: 'Configurações', href: '/configuracoes', icon: Settings },
 ]
@@ -41,6 +43,7 @@ export function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
+  const isAdmin = user?.tipo_usuario === 'admin'
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -63,6 +66,8 @@ export function Sidebar({ user }: SidebarProps) {
 
       <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
         {navItems.map((item) => {
+          if (item.adminOnly && !isAdmin) return null
+
           const isActive = pathname === item.href || (pathname?.startsWith(item.href) && item.href !== '/')
           const Icon = item.icon
           
