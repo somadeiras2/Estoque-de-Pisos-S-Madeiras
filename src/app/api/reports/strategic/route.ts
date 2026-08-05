@@ -6,7 +6,9 @@ const SUPABASE_ANON_KEY = 'sb_publishable__1u9ZdTA1xOvdh7i2zCtBw_Fvo1ZgYV'
 
 export async function GET(request: Request) {
   try {
-    const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    const authHeader = request.headers.get('authorization')
+    const options = authHeader ? { global: { headers: { Authorization: authHeader } } } : {}
+    const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY, options)
 
     // Fetch all stock reductions (baixas) with joined piso details
     const { data: rawBaixas, error } = await supabase
