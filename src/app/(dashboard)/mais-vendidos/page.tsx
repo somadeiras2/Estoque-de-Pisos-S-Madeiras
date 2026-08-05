@@ -110,54 +110,81 @@ export default function MaisVendidosPage() {
 
         {/* Strategic Cards - Volume vs Popularity */}
         {!loading && data.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 print:grid-cols-3">
-            
-            {/* Lider Volume */}
-            <Card className="border-l-4 border-l-teal-600 bg-white shadow-sm">
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className="p-3 bg-teal-50 rounded-xl text-teal-700 shrink-0">
-                  <Boxes className="w-6 h-6" />
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-slate-500 uppercase">Maior Volume (Caixas)</p>
-                  <h3 className="font-bold text-slate-800 text-base truncate">{liderVolume?.nome || '-'}</h3>
-                  <p className="text-sm text-teal-700 font-semibold">{formatNumber(liderVolume?.totalCaixas || 0)} caixas ({formatArea(liderVolume?.totalArea || 0)})</p>
-                  <p className="text-xs text-slate-400">Vendido em {liderVolume?.pedidosCount} pedido(s)</p>
-                </div>
-              </CardContent>
-            </Card>
+          <>
+            {/* Web View Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 print:hidden">
+              
+              {/* Lider Volume */}
+              <Card className="border-l-4 border-l-teal-600 bg-white shadow-sm">
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className="p-3 bg-teal-50 rounded-xl text-teal-700 shrink-0">
+                    <Boxes className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-slate-500 uppercase">Maior Volume (Caixas)</p>
+                    <h3 className="font-bold text-slate-800 text-base truncate">{liderVolume?.nome || '-'}</h3>
+                    <p className="text-sm text-teal-700 font-semibold">{formatNumber(liderVolume?.totalCaixas || 0)} caixas ({formatArea(liderVolume?.totalArea || 0)})</p>
+                    <p className="text-xs text-slate-400">Vendido em {liderVolume?.pedidosCount} pedido(s)</p>
+                  </div>
+                </CardContent>
+              </Card>
 
-            {/* Mais Popular */}
-            <Card className="border-l-4 border-l-amber-500 bg-white shadow-sm">
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className="p-3 bg-amber-50 rounded-xl text-amber-600 shrink-0">
-                  <Users className="w-6 h-6" />
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-slate-500 uppercase">Mais Popular (Mais Clientes)</p>
-                  <h3 className="font-bold text-slate-800 text-base truncate">{maisPopular?.nome || '-'}</h3>
-                  <p className="text-sm text-amber-600 font-semibold">Vendido para {maisPopular?.pedidosCount} pedido(s) distintos!</p>
-                  <p className="text-xs text-slate-400">Total de {formatNumber(maisPopular?.totalCaixas || 0)} caixas</p>
-                </div>
-              </CardContent>
-            </Card>
+              {/* Mais Popular */}
+              <Card className="border-l-4 border-l-amber-500 bg-white shadow-sm">
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className="p-3 bg-amber-50 rounded-xl text-amber-600 shrink-0">
+                    <Users className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-slate-500 uppercase">Mais Popular (Mais Clientes)</p>
+                    <h3 className="font-bold text-slate-800 text-base truncate">{maisPopular?.nome || '-'}</h3>
+                    <p className="text-sm text-amber-600 font-semibold">Vendido para {maisPopular?.pedidosCount} pedido(s) distintos!</p>
+                    <p className="text-xs text-slate-400">Total de {formatNumber(maisPopular?.totalCaixas || 0)} caixas</p>
+                  </div>
+                </CardContent>
+              </Card>
 
-            {/* Maior Média */}
-            <Card className="border-l-4 border-l-indigo-500 bg-white shadow-sm">
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className="p-3 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
-                  <TrendingUp className="w-6 h-6" />
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-slate-500 uppercase">Maior Média por Pedido</p>
-                  <h3 className="font-bold text-slate-800 text-base truncate">{maiorMedia?.nome || '-'}</h3>
-                  <p className="text-sm text-indigo-600 font-semibold">~{maiorMedia?.mediaCaixasPorPedido} cx / pedido</p>
-                  <p className="text-xs text-slate-400">{maiorMedia?.pedidosCount} pedido(s) no total</p>
-                </div>
-              </CardContent>
-            </Card>
+              {/* Maior Média */}
+              <Card className="border-l-4 border-l-indigo-500 bg-white shadow-sm">
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className="p-3 bg-indigo-50 rounded-xl text-indigo-600 shrink-0">
+                    <TrendingUp className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-slate-500 uppercase">Maior Média por Pedido</p>
+                    <h3 className="font-bold text-slate-800 text-base truncate">{maiorMedia?.nome || '-'}</h3>
+                    <p className="text-sm text-indigo-600 font-semibold">~{maiorMedia?.mediaCaixasPorPedido} cx / pedido</p>
+                    <p className="text-xs text-slate-400">{maiorMedia?.pedidosCount} pedido(s) no total</p>
+                  </div>
+                </CardContent>
+              </Card>
 
-          </div>
+            </div>
+
+            {/* Print View Cards (Clean horizontal layout for A4) */}
+            <div className="hidden print:grid print:grid-cols-3 print:gap-3 mb-4">
+              <div className="border border-teal-700 bg-slate-50 p-3 rounded-lg">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Maior Volume (Caixas)</p>
+                <h3 className="font-bold text-slate-900 text-xs truncate">{liderVolume?.nome || '-'}</h3>
+                <p className="text-xs text-teal-800 font-bold mt-0.5">{formatNumber(liderVolume?.totalCaixas || 0)} caixas ({formatArea(liderVolume?.totalArea || 0)})</p>
+                <p className="text-[10px] text-slate-500">Vendido em {liderVolume?.pedidosCount} pedido(s)</p>
+              </div>
+
+              <div className="border border-amber-600 bg-slate-50 p-3 rounded-lg">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Mais Popular (Mais Clientes)</p>
+                <h3 className="font-bold text-slate-900 text-xs truncate">{maisPopular?.nome || '-'}</h3>
+                <p className="text-xs text-amber-800 font-bold mt-0.5">{maisPopular?.pedidosCount} pedido(s) distintos</p>
+                <p className="text-[10px] text-slate-500">Total de {formatNumber(maisPopular?.totalCaixas || 0)} caixas</p>
+              </div>
+
+              <div className="border border-indigo-600 bg-slate-50 p-3 rounded-lg">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Maior Média por Pedido</p>
+                <h3 className="font-bold text-slate-900 text-xs truncate">{maiorMedia?.nome || '-'}</h3>
+                <p className="text-xs text-indigo-800 font-bold mt-0.5">~{maiorMedia?.mediaCaixasPorPedido} cx/pedido</p>
+                <p className="text-[10px] text-slate-500">{maiorMedia?.pedidosCount} pedido(s) no total</p>
+              </div>
+            </div>
+          </>
         )}
 
         {/* Filter Controls (Hidden on print) */}
