@@ -10,9 +10,12 @@ import { Trophy, Printer, Users, Boxes, TrendingUp, BarChart2, Lightbulb, Packag
 import { formatNumber, formatArea } from '@/lib/utils/formatters'
 import { useIsMobile } from '@/lib/hooks/useMediaQuery'
 
+import { useAuth } from '@/lib/hooks/useAuth'
+
 type SortMode = 'volume' | 'pedidos' | 'media'
 
 export default function MaisVendidosPage() {
+  const { user } = useAuth()
   const [data, setData] = useState<any[]>([])
   const [summary, setSummary] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -43,7 +46,7 @@ export default function MaisVendidosPage() {
       }
     }
     loadData()
-  }, [])
+  }, [user])
 
   // Sort data based on strategic metric
   const sortedData = [...data].sort((a, b) => {

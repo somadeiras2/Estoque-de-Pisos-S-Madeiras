@@ -11,10 +11,21 @@ export async function GET(request: Request) {
     const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY, options)
 
     // Fetch all stock reductions (baixas) with joined piso details
-    const { data: rawBaixas, error } = await supabase
+    let { data: rawBaixas, error } = await supabase
       .from('movimentacoes_estoque')
       .select('*, pisos(id, nome, marca, codigo, dimensao, tipo, metros_por_caixa)')
       .eq('tipo_movimentacao', 'baixa')
+
+    if ((!rawBaixas || rawBaixas.length === 0) && authHeader) {
+      const fallbackClient = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      const resFallback = await fallbackClient
+        .from('movimentacoes_estoque')
+        .select('*, pisos(id, nome, marca, codigo, dimensao, tipo, metros_por_caixa)')
+        .eq('tipo_movimentacao', 'baixa')
+      if (resFallback.data && resFallback.data.length > 0) {
+        rawBaixas = resFallback.data
+      }
+    }
 
     if (error) {
       console.error('API /api/reports/strategic error:', error)
