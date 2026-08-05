@@ -12,6 +12,41 @@ export async function getMovimentacoes(filters?: {
   page?: number
   limit?: number
 }) {
+  try {
+    const supabase = createClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    const headers: Record<string, string> = {}
+    if (session?.access_token) {
+      headers['Authorization'] = `Bearer ${session.access_token}`
+    }
+
+    const params = new URLSearchParams()
+    if (filters?.piso_id) params.set('piso_id', filters.piso_id)
+    if (filters?.vendedor_id) params.set('vendedor_id', filters.vendedor_id)
+    if (filters?.tipo) params.set('tipo', filters.tipo)
+    const p = filters?.numero_pedido || (filters as any)?.pedido
+    if (p) params.set('pedido', p)
+    const inicio = filters?.periodo?.inicio || (filters as any)?.data_inicio
+    if (inicio) params.set('data_inicio', inicio)
+    const fim = filters?.periodo?.fim || (filters as any)?.data_fim
+    if (fim) params.set('data_fim', fim)
+    if (filters?.page) params.set('page', String(filters.page))
+    if (filters?.limit) params.set('limit', String(filters.limit))
+
+    const res = await fetch(`/api/movimentacoes/list?${params.toString()}`, { headers })
+    const json = await res.json()
+    if (res.ok && json.success) {
+      return {
+        data: json.data || [],
+        count: json.count || 0,
+        totalPages: json.totalPages || 1,
+        error: null
+      }
+    }
+  } catch (err) {
+    console.warn('Fetch /api/movimentacoes/list falhou, tentando Supabase client direto:', err)
+  }
+
   const supabase = createClient()
   let query = supabase
     .from('movimentacoes_estoque')

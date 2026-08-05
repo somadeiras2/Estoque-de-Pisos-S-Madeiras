@@ -55,13 +55,11 @@ export default function HistoricoPage() {
   };
 
   useEffect(() => {
-    if (isAdmin) {
-      getVendedores().then(res => {
-        const list = Array.isArray(res) ? res : (res as any)?.data || [];
-        setVendedores(list.map((vd: any) => ({ label: vd.nome_exibicao || vd.nome, value: vd.id })));
-      }).catch(() => {});
-    }
-  }, [isAdmin]);
+    getVendedores().then(res => {
+      const list = Array.isArray(res) ? res : (res as any)?.data || [];
+      setVendedores(list.map((vd: any) => ({ label: vd.nome_exibicao || vd.nome, value: vd.id })));
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     loadData();
@@ -110,16 +108,14 @@ export default function HistoricoPage() {
               />
             </div>
             
-            {isAdmin && (
-              <div className="lg:col-span-1">
-                <label className="text-xs text-slate-500 mb-1 block">Vendedor</label>
-                <Select 
-                  value={filters.vendedor_id} 
-                  onChange={(e) => setFilters({...filters, vendedor_id: e.target.value})}
-                  options={[{ label: 'Todos', value: '' }, ...vendedores]}
-                />
-              </div>
-            )}
+            <div className="lg:col-span-1">
+              <label className="text-xs text-slate-500 mb-1 block">Vendedor</label>
+              <Select 
+                value={filters.vendedor_id} 
+                onChange={(e) => setFilters({...filters, vendedor_id: e.target.value})}
+                options={[{ label: 'Todos', value: '' }, ...vendedores]}
+              />
+            </div>
             
             <div className="lg:col-span-1">
               <label className="text-xs text-slate-500 mb-1 block">Nº Pedido</label>
