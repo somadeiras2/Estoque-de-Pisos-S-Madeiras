@@ -333,7 +333,8 @@ export default function EstoquePage() {
           <table className="w-full text-xs text-left border-collapse">
             <thead className="bg-slate-200 text-slate-800 font-bold border-b border-slate-300">
               <tr>
-                <th className="px-3 py-2 text-center w-8">#</th>
+                <th className="px-2 py-2 text-center w-8">#</th>
+                <th className="px-2 py-2 text-center w-12">Foto</th>
                 <th className="px-3 py-2">Piso / Marca</th>
                 <th className="px-3 py-2">Código / Dimensão</th>
                 <th className="px-3 py-2 text-right">Caixas em Estoque</th>
@@ -343,30 +344,50 @@ export default function EstoquePage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
-              {pisos.map((piso, idx) => (
-                <tr key={piso.id}>
-                  <td className="px-3 py-2 text-center font-semibold text-slate-500">{idx + 1}</td>
-                  <td className="px-3 py-2 font-bold text-slate-900">
-                    {piso.nome}
-                    <span className="block text-[10px] text-slate-500 font-normal">{piso.marca || 'Marca N/A'}</span>
-                  </td>
-                  <td className="px-3 py-2 text-slate-600">
-                    {piso.codigo || '-'} • {piso.dimensao || '-'}
-                  </td>
-                  <td className="px-3 py-2 text-right font-extrabold text-teal-800">
-                    {formatNumber(piso.caixas)} cx
-                  </td>
-                  <td className="px-3 py-2 text-right text-slate-600">
-                    {formatArea(piso.m2PorCaixa)}
-                  </td>
-                  <td className="px-3 py-2 text-right font-bold text-slate-900">
-                    {formatArea(piso.caixas * piso.m2PorCaixa)}
-                  </td>
-                  <td className="px-3 py-2 text-center">
-                    <StatusBadge caixas={piso.caixas} minimo={piso.estoqueMinimo} />
-                  </td>
-                </tr>
-              ))}
+              {pisos.map((piso, idx) => {
+                const imgSrc = piso.imagemUrl || piso.imagem_url
+                return (
+                  <tr key={piso.id} className="align-middle">
+                    <td className="px-2 py-2 text-center font-semibold text-slate-500">{idx + 1}</td>
+                    <td className="px-2 py-2 text-center">
+                      <div className="w-10 h-10 mx-auto rounded border border-slate-200 bg-slate-100 overflow-hidden flex items-center justify-center">
+                        {imgSrc ? (
+                          <img 
+                            src={imgSrc} 
+                            alt={piso.nome} 
+                            className="w-10 h-10 object-cover" 
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <Layers className="w-4 h-4 text-slate-400" />
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-3 py-2 font-bold text-slate-900">
+                      {piso.nome}
+                      <span className="block text-[10px] text-slate-500 font-normal">{piso.marca || 'Marca N/A'}</span>
+                    </td>
+                    <td className="px-3 py-2 text-slate-600">
+                      <span className="font-semibold text-slate-800">{piso.codigo || '-'}</span>
+                      <span className="block text-[10px] text-slate-500">{piso.dimensao || '-'}</span>
+                    </td>
+                    <td className="px-3 py-2 text-right font-extrabold text-teal-800">
+                      {formatNumber(piso.caixas)} cx
+                    </td>
+                    <td className="px-3 py-2 text-right text-slate-600">
+                      {formatArea(piso.m2PorCaixa)}
+                    </td>
+                    <td className="px-3 py-2 text-right font-bold text-slate-900">
+                      {formatArea(piso.caixas * piso.m2PorCaixa)}
+                    </td>
+                    <td className="px-3 py-2 text-center whitespace-nowrap">
+                      <StatusBadge caixas={piso.caixas} minimo={piso.estoqueMinimo} />
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
