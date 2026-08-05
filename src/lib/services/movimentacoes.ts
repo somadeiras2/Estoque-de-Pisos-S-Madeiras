@@ -6,11 +6,16 @@ export async function getMovimentacoes(filters?: {
   tipo?: string
   periodo?: { inicio: string; fim: string }
   numero_pedido?: string
+  pedido?: string
+  data_inicio?: string
+  data_fim?: string
   page?: number
   limit?: number
 }) {
   const supabase = createClient()
-  let query = supabase.from('movimentacoes_estoque').select('*, pisos(nome), profiles(nome)', { count: 'exact' })
+  let query = supabase
+    .from('movimentacoes_estoque')
+    .select('*, pisos(nome), vendedor:profiles!vendedor_id(nome), usuario:profiles!usuario_responsavel_id(nome)', { count: 'exact' })
 
   if (filters?.piso_id) {
     query = query.eq('piso_id', filters.piso_id)
@@ -19,15 +24,22 @@ export async function getMovimentacoes(filters?: {
     query = query.eq('vendedor_id', filters.vendedor_id)
   }
   if (filters?.tipo) {
-    query = query.eq('tipo_movimentacao', filters.tipo)
+    const tipoNorm = filters.tipo.toLowerCase()
+    query = query.eq('tipo_movimentacao', tipoNorm)
   }
-  if (filters?.numero_pedido) {
-    query = query.ilike('numero_pedido', `%${filters.numero_pedido}%`)
+  const pedidoQuery = filters?.numero_pedido || (filters as any)?.pedido
+  if (pedidoQuery) {
+    query = query.ilike('numero_pedido', `%${pedidoQuery}%`)
   }
-  if (filters?.periodo) {
-    query = query
-      .gte('created_at', filters.periodo.inicio)
-      .lte('created_at', filters.periodo.fim)
+
+  const inicio = filters?.periodo?.inicio || (filters as any)?.data_inicio
+  const fim = filters?.periodo?.fim || (filters as any)?.data_fim
+
+  if (inicio) {
+    query = query.gte('created_at', `${inicio}T00:00:00`)
+  }
+  if (fim) {
+    query = query.lte('created_at', `${fim}T23:59:59`)
   }
 
   const limit = filters?.limit || 20

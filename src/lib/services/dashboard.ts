@@ -1,8 +1,22 @@
 import { createClient } from '@/lib/supabase/client'
 
+async function getAuthHeaders(): Promise<Record<string, string>> {
+  try {
+    const supabase = createClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session?.access_token) {
+      return { Authorization: `Bearer ${session.access_token}` }
+    }
+  } catch (e) {
+    console.warn('Erro ao obter sessão auth:', e)
+  }
+  return {}
+}
+
 export async function fetchDashboardAll() {
   try {
-    const res = await fetch('/api/dashboard/stats')
+    const headers = await getAuthHeaders()
+    const res = await fetch('/api/dashboard/stats', { headers })
     const json = await res.json()
     if (json.success) {
       return {
@@ -28,7 +42,8 @@ export async function fetchDashboardAll() {
 
 export async function getDashboardStats(periodo?: { inicio?: string; fim?: string } | string) {
   try {
-    const res = await fetch('/api/dashboard/stats')
+    const headers = await getAuthHeaders()
+    const res = await fetch('/api/dashboard/stats', { headers })
     const json = await res.json()
     if (json.success) {
       return {

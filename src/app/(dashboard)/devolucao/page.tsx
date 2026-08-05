@@ -35,7 +35,14 @@ export default function DevolucaoPage() {
     setLoading(true)
     setHasSearched(true)
     try {
-      const res = await fetch(`/api/devolucao/search?pedido=${encodeURIComponent(pedidoQuery.trim())}`)
+      const { createClient } = await import('@/lib/supabase/client')
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      const headers: Record<string, string> = {}
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`
+      }
+      const res = await fetch(`/api/devolucao/search?pedido=${encodeURIComponent(pedidoQuery.trim())}`, { headers })
       const json = await res.json()
       if (res.ok && json.success) {
         setItems(json.data || [])

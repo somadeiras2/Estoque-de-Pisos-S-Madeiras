@@ -13,11 +13,13 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: true, data: [] })
     }
 
-    const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    const authHeader = request.headers.get('authorization')
+    const options = authHeader ? { global: { headers: { Authorization: authHeader } } } : {}
+    const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY, options)
 
     const { data, error } = await supabase
       .from('movimentacoes_estoque')
-      .select('*, pisos(*), profiles!vendedor_id(nome)')
+      .select('*, pisos(*), vendedor:profiles!vendedor_id(nome), usuario:profiles!usuario_responsavel_id(nome)')
       .eq('tipo_movimentacao', 'baixa')
       .ilike('numero_pedido', `%${pedido.trim()}%`)
       .order('created_at', { ascending: false })
@@ -38,7 +40,7 @@ export async function GET(request: Request) {
       metrosPorCaixa: m.pisos?.metros_por_caixa || 1,
       estoqueAtual: m.pisos?.quantidade_caixas || 0,
       numeroPedido: m.numero_pedido,
-      vendedorNome: m.profiles?.nome || 'Vendedor',
+      vendedorNome: m.vendedor?.nome || m.usuario?.nome || 'Vendedor',
       dataBaixa: m.created_at
     }))
 

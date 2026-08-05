@@ -174,8 +174,6 @@ export async function createPiso(data: Partial<Piso> | any, imageFile?: File | n
 }
 
 export async function updatePiso(id: string, data: Partial<Piso> | any, imageFile?: File | null) {
-  const supabase = createClient()
-
   let imagem_url = data.imagem_url
   if (imageFile) {
     try {
@@ -186,6 +184,7 @@ export async function updatePiso(id: string, data: Partial<Piso> | any, imageFil
   }
 
   const payload: Record<string, any> = {
+    id,
     nome: String(data.nome || '').trim(),
     marca: cleanString(data.marca),
     codigo: cleanString(data.codigo),
@@ -206,8 +205,50 @@ export async function updatePiso(id: string, data: Partial<Piso> | any, imageFil
     payload.imagem_url = imagem_url
   }
 
+  try {
+    const res = await fetch('/api/pisos/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    const result = await res.json()
+    if (res.ok && result.success) {
+      return result.data
+    }
+    if (result?.error) {
+      throw new Error(result.error)
+    }
+  } catch (err: any) {
+    console.warn('Fetch para /api/pisos/update falhou, usando Supabase client com movimentação:', err)
+  }
+
+  const supabase = createClient()
+  const { data: currentPiso } = await (supabase as any).from('pisos').select('*').eq('id', id).single()
+  const oldCaixas = currentPiso ? Number(currentPiso.quantidade_caixas ?? 0) : null
+
   const res = await (supabase as any).from('pisos').update(payload).eq('id', id).select().single()
   if (res.error) throw res.error
+
+  const newCaixas = payload.quantidade_caixas
+  if (oldCaixas !== null && oldCaixas !== newCaixas) {
+    try {
+      const diff = newCaixas - oldCaixas
+      const { data: { user } } = await supabase.auth.getUser()
+      await (supabase as any).from('movimentacoes_estoque').insert({
+        piso_id: id,
+        tipo_movimentacao: diff < 0 ? 'baixa' : 'entrada',
+        quantidade_caixas: Math.abs(diff),
+        metros_quadrados: Math.abs(diff) * payload.metros_por_caixa,
+        estoque_anterior: oldCaixas,
+        estoque_posterior: newCaixas,
+        observacao: payload.observacoes || (diff < 0 ? 'Baixa por atualização direta de estoque' : 'Entrada por atualização direta de estoque'),
+        usuario_responsavel_id: user?.id || null
+      })
+    } catch (movErr) {
+      console.warn('Registro de movimentacao falhou no fallback:', movErr)
+    }
+  }
+
   return res.data
 }
 

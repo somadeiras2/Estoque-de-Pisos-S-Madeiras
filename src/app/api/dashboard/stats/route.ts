@@ -4,17 +4,21 @@ import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 const SUPABASE_URL = 'https://wlnpsaudwbpnvuyirpnl.supabase.co'
 const SUPABASE_ANON_KEY = 'sb_publishable__1u9ZdTA1xOvdh7i2zCtBw_Fvo1ZgYV'
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-    const hojeStr = new Date().toISOString().split('T')[0]
+    const authHeader = request.headers.get('authorization')
+    const options = authHeader ? { global: { headers: { Authorization: authHeader } } } : {}
+    const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY, options)
+    const now = new Date()
+    const brtDateStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(now)
+    const inicioHojeBrt = `${brtDateStr}T00:00:00-03:00`
 
     // Execute queries in parallel for maximum speed
     const [pisosRes, baixasHojeRes, baixasAllRes, rawMovsRes] = await Promise.all([
       supabase.from('pisos').select('*', { count: 'exact' }).eq('ativo', true),
-      supabase.from('movimentacoes_estoque').select('*', { count: 'exact', head: true }).eq('tipo_movimentacao', 'baixa').gte('created_at', `${hojeStr}T00:00:00Z`),
+      supabase.from('movimentacoes_estoque').select('*', { count: 'exact', head: true }).eq('tipo_movimentacao', 'baixa').gte('created_at', inicioHojeBrt),
       supabase.from('movimentacoes_estoque').select('piso_id, quantidade_caixas, created_at, pisos(nome)').eq('tipo_movimentacao', 'baixa'),
-      supabase.from('movimentacoes_estoque').select('*, pisos(nome), profiles!vendedor_id(nome)').order('created_at', { ascending: false }).limit(10)
+      supabase.from('movimentacoes_estoque').select('*, pisos(nome), vendedor:profiles!vendedor_id(nome), usuario:profiles!usuario_responsavel_id(nome)').order('created_at', { ascending: false }).limit(10)
     ])
 
     const pisosList = pisosRes.data || []
@@ -78,7 +82,7 @@ export async function GET() {
       pisoNome: m.pisos?.nome || 'Piso',
       quantidade: m.quantidade_caixas,
       quantidade_caixas: m.quantidade_caixas,
-      usuario: m.profiles?.nome || 'Sistema'
+      usuario: m.vendedor?.nome || m.usuario?.nome || 'Sistema'
     }))
 
     return NextResponse.json(
