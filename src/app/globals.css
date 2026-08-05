@@ -45,3 +45,61 @@ html, body {
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom);
 }
+
+/* Print Styles for PDF and Printer */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 10pt !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  aside, nav, header, footer, .print\:hidden, [class*="print:hidden"] {
+    display: none !important;
+  }
+
+  .md\:ml-64 {
+    margin-left: 0 !important;
+  }
+
+  main, div, section, article {
+    max-width: 100% !important;
+    width: 100% !important;
+    box-shadow: none !important;
+  }
+
+  table {
+    width: 100% !important;
+    font-size: 9pt !important;
+    border-collapse: collapse !important;
+    margin-top: 10px !important;
+  }
+
+  th, td {
+    padding: 5px 8px !important;
+  }
+
+  tr {
+    page-break-inside: avoid !important;
+  }
+
+  .shadow-sm, .shadow-md, .shadow-lg, .shadow {
+    box-shadow: none !important;
+  }
+
+  .bg-slate-50, .bg-slate-100, .bg-teal-50, .bg-amber-50, .bg-indigo-50 {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

@@ -35,15 +35,19 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-slate-50 antialiased selection:bg-teal-500 selection:text-white">
-      <Sidebar user={userData} />
+      <div className="print:hidden">
+        <Sidebar user={userData} />
+      </div>
       
-      <div className="md:ml-64 flex flex-col min-h-screen pb-20 md:pb-0">
-        <main className="flex-1 w-full max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8">
+      <div className="md:ml-64 print:ml-0 flex flex-col min-h-screen pb-20 md:pb-0 print:pb-0">
+        <main className="flex-1 w-full max-w-7xl print:max-w-none mx-auto p-3 sm:p-4 md:p-6 lg:p-8 print:p-0 print:m-0">
           {children}
         </main>
       </div>
 
-      <BottomNav user={userData} />
+      <div className="print:hidden">
+        <BottomNav user={userData} />
+      </div>
     </div>
   )
 }
