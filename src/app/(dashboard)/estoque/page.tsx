@@ -200,16 +200,33 @@ export default function EstoquePage() {
                     <span>Total: {formatArea(piso.caixas * piso.m2PorCaixa)}</span>
                   </div>
                 </div>
-                <div className="flex gap-2 mt-2">
-                  <Button className="flex-1 bg-teal-600 hover:bg-teal-700 text-white" onClick={() => router.push(`/baixa?piso=${piso.id}`)}>
+                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100">
+                  <Button 
+                    size="sm" 
+                    className="flex-1 bg-teal-700 hover:bg-teal-800 text-white text-xs font-semibold whitespace-nowrap h-9" 
+                    onClick={() => router.push(`/baixa?piso=${piso.id}`)}
+                  >
                     Dar Baixa
                   </Button>
-                  <Button variant="outline" className="px-3" onClick={() => router.push(isAdmin ? `/cadastro/${piso.id}` : `/estoque/${piso.id}`)}>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="flex-1 text-slate-700 border-slate-300 hover:bg-slate-50 text-xs font-semibold whitespace-nowrap h-9" 
+                    onClick={() => router.push(isAdmin ? `/cadastro/${piso.id}` : `/estoque/${piso.id}`)}
+                  >
                     Detalhes
                   </Button>
-                  <Button variant="danger" className="px-2" title="Excluir Piso" onClick={() => setPisoToDelete(piso)}>
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  {isAdmin && (
+                    <Button 
+                      size="sm" 
+                      variant="danger" 
+                      className="w-9 h-9 p-0 shrink-0 flex items-center justify-center rounded-lg" 
+                      title="Excluir Piso" 
+                      onClick={() => setPisoToDelete(piso)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
