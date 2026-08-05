@@ -1,8 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createClient as createSupabaseClient } from '@supabase/supabase-js'
-
-const SUPABASE_URL = 'https://wlnpsaudwbpnvuyirpnl.supabase.co'
-const SUPABASE_ANON_KEY = 'sb_publishable__1u9ZdTA1xOvdh7i2zCtBw_Fvo1ZgYV'
+import { getSystemSupabaseClient } from '@/lib/supabase/server-admin'
 
 export async function GET(request: Request) {
   try {
@@ -11,9 +8,7 @@ export async function GET(request: Request) {
     const mesParam = parseInt(searchParams.get('mes') || String(new Date().getMonth() + 1), 10)
     const anoParam = parseInt(searchParams.get('ano') || String(new Date().getFullYear()), 10)
 
-    const authHeader = request.headers.get('authorization')
-    const options = authHeader ? { global: { headers: { Authorization: authHeader } } } : {}
-    const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY, options)
+    const supabase = await getSystemSupabaseClient()
 
     // Build query for baixas
     let query = supabase
@@ -22,18 +17,6 @@ export async function GET(request: Request) {
       .eq('tipo_movimentacao', 'baixa')
 
     let { data: rawBaixas, error } = await query
-
-    // Fallback if RLS returned empty data with authHeader
-    if ((!rawBaixas || rawBaixas.length === 0) && authHeader) {
-      const fallbackClient = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-      const resFallback = await fallbackClient
-        .from('movimentacoes_estoque')
-        .select('*, pisos(id, nome, marca, metros_por_caixa), vendedor:profiles!vendedor_id(id, nome, nome_exibicao)')
-        .eq('tipo_movimentacao', 'baixa')
-      if (resFallback.data) {
-        rawBaixas = resFallback.data
-      }
-    }
 
     if (error && (!rawBaixas || rawBaixas.length === 0)) {
       console.error('API /api/reports/sellers-ranking error:', error)

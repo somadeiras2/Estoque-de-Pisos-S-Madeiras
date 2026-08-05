@@ -1,8 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createClient as createSupabaseClient } from '@supabase/supabase-js'
-
-const SUPABASE_URL = 'https://wlnpsaudwbpnvuyirpnl.supabase.co'
-const SUPABASE_ANON_KEY = 'sb_publishable__1u9ZdTA1xOvdh7i2zCtBw_Fvo1ZgYV'
+import { getSystemSupabaseClient } from '@/lib/supabase/server-admin'
 
 export async function GET(request: Request) {
   try {
@@ -13,9 +10,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: true, data: [] })
     }
 
-    const authHeader = request.headers.get('authorization')
-    const options = authHeader ? { global: { headers: { Authorization: authHeader } } } : {}
-    const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY, options)
+    const supabase = await getSystemSupabaseClient()
 
     const { data, error } = await supabase
       .from('movimentacoes_estoque')

@@ -1,31 +1,15 @@
 import { NextResponse } from 'next/server'
-import { createClient as createSupabaseClient } from '@supabase/supabase-js'
-
-const SUPABASE_URL = 'https://wlnpsaudwbpnvuyirpnl.supabase.co'
-const SUPABASE_ANON_KEY = 'sb_publishable__1u9ZdTA1xOvdh7i2zCtBw_Fvo1ZgYV'
+import { getSystemSupabaseClient } from '@/lib/supabase/server-admin'
 
 export async function GET(request: Request) {
   try {
-    const authHeader = request.headers.get('authorization')
-    const options = authHeader ? { global: { headers: { Authorization: authHeader } } } : {}
-    const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY, options)
+    const supabase = await getSystemSupabaseClient()
 
     // Fetch all stock reductions (baixas) with joined piso details
     let { data: rawBaixas, error } = await supabase
       .from('movimentacoes_estoque')
       .select('*, pisos(id, nome, marca, codigo, dimensao, tipo, metros_por_caixa)')
       .eq('tipo_movimentacao', 'baixa')
-
-    if ((!rawBaixas || rawBaixas.length === 0) && authHeader) {
-      const fallbackClient = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-      const resFallback = await fallbackClient
-        .from('movimentacoes_estoque')
-        .select('*, pisos(id, nome, marca, codigo, dimensao, tipo, metros_por_caixa)')
-        .eq('tipo_movimentacao', 'baixa')
-      if (resFallback.data && resFallback.data.length > 0) {
-        rawBaixas = resFallback.data
-      }
-    }
 
     if (error) {
       console.error('API /api/reports/strategic error:', error)
